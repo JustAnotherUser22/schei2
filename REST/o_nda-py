@@ -1,0 +1,75 @@
+import requests
+import json
+
+#token:
+#3a88d17a24b23db03a6cbab7b7679021-cd1def6fbccd8f66de49f873256472b0
+TOKEN = "3a88d17a24b23db03a6cbab7b7679021-cd1def6fbccd8f66de49f873256472b0"
+ID = "101-012-19290805-001"
+URL = "https://api-fxpractice.oanda.com/v3/accounts"
+
+def GetID():
+   api_url = URL
+
+   header = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + TOKEN,
+   }
+
+   response = requests.get(api_url, headers = header)
+   print(response.status_code)
+   print(response.json())   
+   #print(response.headers)
+
+def GetOrder():
+   api_url =  URL + '/' + ID + "/orders?instrument=EUR_CAD"
+
+   header = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + TOKEN,
+   }
+
+   response = requests.get(api_url, headers = header)
+   print(response.status_code)
+   print(response.json())
+   
+def PostOrder():
+   api_url =  URL + '/' + ID + "/orders?instrument=EUR_CAD"
+
+   header = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + TOKEN,
+   }
+
+   body = {
+      "order" : {
+         "units": "100",
+         "instrument": "EUR_USD",
+         "timeInForce": "FOK",
+         "type": "MARKET",
+         "positionFill": "DEFAULT"
+      }
+   }
+
+   response = requests.post(api_url, headers = header, data = json.dumps(body))
+   print(response.status_code)
+   print(response.json())
+
+def GetPrice():
+   api_url =  URL + '/' + ID + "/pricing?instruments=EUR_USD%2CUSD_CAD"
+
+   header = {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + TOKEN,
+   }
+
+   response = requests.get(api_url, headers = header)
+   print(response.status_code)
+   print(response.json())
+
+
+
+if __name__ == "__main__":
+   #GetID()
+   #GetOrder()
+   PostOrder()
+   #GetPrice()

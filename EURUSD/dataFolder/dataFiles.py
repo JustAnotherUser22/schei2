@@ -1,0 +1,34 @@
+
+#BASE_PATH = "daUSB/schei/EURUSD/"
+BASE_PATH = "daUSB/schei/EURUSD/dataFolder/"
+PATH_LOG = "log.txt"
+PATH_LAST_PARAMETERS = "last_parameters_macd.txt"
+PATH_TEST_LAST_PARAMETERS = "test_last_parameters.txt"
+
+
+#dati giornalieri da 2010 a 2023
+ALL_DATA = 'EUR_USD Dati Storici.csv'
+
+#dati giornalieri del 2022
+ALL_DAYLY_DATA = 'EUR_USD Dati Storici 2022.csv'
+
+#dati del 2022 con intervallo 1 minuto
+FILE_2022_1M = 'DAT_ASCII_EURUSD_M1_2022.csv'
+
+#dati del 2022 con intervallo 1 minuto su cui è stata calcolata 
+#una classe basandosi sui 100 valori futuri
+FILE_2022_1M_WITH_WINDOW = 'DAT_ASCII_EURUSD_M1_2022_windows_100.csv'
+
+#dati di gennaio 2022 con intervallo 1 minuto su cui è stata calcolata 
+#una classe basandosi sui 100 valori futuri
+FILE_2022_1M_WITH_CLASS = 'DAT_ASCII_EURUSD_M1_2022_gennaio_class.csv'
+
+#file formattato (non mi ricordo come -.-' )
+FILE_2022_1M_FORMATTED = 'DAT_ASCII_EURUSD_M1_2022_formatted.csv'
+
+FILE_FULL_PATH = BASE_PATH + FILE_2022_1M_FORMATTED
+
+
+
+
+
