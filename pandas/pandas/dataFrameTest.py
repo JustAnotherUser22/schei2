@@ -14,10 +14,12 @@ def changeValueInDatabase():
    data = pd.DataFrame({'Yes': [50, 21], 'No': [131, 2]})
 
    #cambia il valore in posizione (1,1)
-   data.iloc[1][1] = 66
-   data.iloc[1]['Yes'] = 11
-   data.loc[1][1] = 666
-   data.loc[1]['Yes'] = 11
+   
+   data.iloc[0]['Yes'] = 0
+   data.iloc[0][1] = 1   
+   data.loc[1]['Yes'] = 2
+   data.loc[1][1] = 3
+   
    print("---data dopo aver cammbiato una entry")
    print(data)
    print()
@@ -73,11 +75,39 @@ def removeNaNEntries():
    data = data[pd.notna(data)]
    print(data)
 
+def printNewHeader():
+   data = pd.DataFrame({'Yes': [50, 21], 'No': [131, 2]})
+   print(data.columns)
+   print(data.index)
+   data.columns = ['maybe', 'who know']
+   print(data)
 
+def convertToNumpy():
+   data = pd.DataFrame({'Yes': [50, 21], 'No': [131, 2], 'maybe': ['one', 'two']})
+
+   print(data.to_numpy())
+
+
+def dontMindMe(data):
+   (numberOfRows, numberOfCloumn) = data.shape
+
+   for i in range(numberOfRows):
+      for j in range(numberOfCloumn):
+         data.iat[i, j] = 0
+   #data.iat[0, 1] = 0
+
+def changeDataFrameInFunction():
+   data = pd.DataFrame({'Yes': [50, 21], 'No': [131, 2], 'maybe': ['one', 'two']})
+   print(data)
+   dontMindMe(data)
+   print(data)
 
 if __name__ == "__main__":
    #createDatabaseAndShowit()
-   changeValueInDatabase()
+   #changeValueInDatabase()
    #printSingleEntry()
    #addColumn()
    #removeNaNEntries()
+   #printNewHeader()
+   #convertToNumpy()
+   changeDataFrameInFunction()

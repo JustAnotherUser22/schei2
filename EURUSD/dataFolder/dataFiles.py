@@ -1,9 +1,19 @@
 
+
+#############
+#i dati si possono scaricare da qua
+#http://www.histdata.com/download-free-forex-historical-data/?/ascii/1-minute-bar-quotes/eurusd/2022
+#############
+
+
+
+
 #BASE_PATH = "daUSB/schei/EURUSD/"
-BASE_PATH = "daUSB/schei/EURUSD/dataFolder/"
+BASE_PATH = "schei2/EURUSD/dataFolder/"
 PATH_LOG = "log.txt"
-PATH_LAST_PARAMETERS = "last_parameters_macd.txt"
-PATH_TEST_LAST_PARAMETERS = "test_last_parameters.txt"
+
+
+PATH_LAST_PARAMETERS = "schei2/EURUSD/log/last_parameters_macd.txt"
 
 
 #dati giornalieri da 2010 a 2023

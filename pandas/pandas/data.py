@@ -16,7 +16,6 @@ from sklearn.inspection import permutation_importance
 from pathlib import Path
 import features
 from datetime import datetime
-import os
 import joblib
 import ta
 
@@ -28,12 +27,16 @@ fa il train di una random forest
 mostra valori e plot di alcuni dati relativi alle performance del modello appena creato
 '''
 
-BASE_PATH = "pandas/pandas/"
+BASE_PATH = "schei2/EURUSD/dataFolder/"
 FILE_1M_ALL2022_WITH_CLASS = "DAT_ASCII_EURUSD_M1_2022_formatted_class.csv"
 FILE_1M_ALL2022_ORIGNAL = "DAT_ASCII_EURUSD_M1_2022_formatted.csv"
 FILE_1M_ALL2022_WINDOWS_100 = "DAT_ASCII_EURUSD_M1_2022_window_100.csv"
 
 ### data manager
+
+CLASS_DEFAULT_VALUE = 0
+CLASS_POSITIVE_OUTCOME_IN_WINDOW = 1
+CLASS_NEGATIVE_OUTCOME_IN_WINDOW = -1
 
 def computeClass(data, realNumberOfDataToConsider, timeWindow):
    print("inizio definizione classi")
@@ -48,16 +51,16 @@ def computeClass(data, realNumberOfDataToConsider, timeWindow):
             nextValue = nextElement[1]
 
             if(nextValue > currentValue + 0.001):
-               data.loc[i, "class"] = 1
+               data.loc[i, "class"] = CLASS_POSITIVE_OUTCOME_IN_WINDOW
                end = True
             #if(nextValue < currentValue - 0.001):
-            #   data.loc[i, "class"] = -1
+            #   data.loc[i, "class"] = CLASS_NEGATIVE_OUTCOME_IN_WINDOW
             #   end = True
 
 def formatDatabase(data):
    (numberOfRows, numberOfColumns) = data.shape
 
-   data.insert(numberOfColumns, "class", [0]*numberOfRows)
+   data.insert(numberOfColumns, "class", [CLASS_DEFAULT_VALUE]*numberOfRows)
    
    numberOfDataToConsider = numberOfRows #1000
    #print(data.head())
@@ -83,6 +86,7 @@ def formatDatabaseWritingLinesOneByOne(data):
    index = 0
    #my_file = Path("pandas/DAT_ASCII_EURUSD_M1_2022_formatted_class.csv")
    my_file = Path(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100)
+
    if my_file.is_file():
       #f = open("pandas/DAT_ASCII_EURUSD_M1_2022_formatted_class.csv", 'r')
       f = open(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100, 'r')
@@ -106,7 +110,7 @@ def formatDatabaseWritingLinesOneByOne(data):
    
    (numberOfRows, numberOfColumns) = data.shape
 
-   data.insert(numberOfColumns, "class", [0]*numberOfRows)
+   data.insert(numberOfColumns, "class", [CLASS_DEFAULT_VALUE]*numberOfRows)
    
    numberOfDataToConsider = numberOfRows #1000
    #print(data.head())
@@ -127,10 +131,10 @@ def formatDatabaseWritingLinesOneByOne(data):
             nextValue = nextElement[1]
 
             if(nextValue > currentValue + 0.001):
-               data.loc[i, "class"] = 1
+               data.loc[i, "class"] = CLASS_POSITIVE_OUTCOME_IN_WINDOW
                end = True
             if(nextValue < currentValue - 0.001):
-               data.loc[i, "class"] = -1
+               data.loc[i, "class"] = CLASS_NEGATIVE_OUTCOME_IN_WINDOW
                end = True
       
       #f = open("pandas/DAT_ASCII_EURUSD_M1_2022_formatted_class.csv", 'a')
@@ -231,7 +235,7 @@ def addOnlyEmaToDatabase(data):
    featureNames = []
 
    start = 1
-   stop = 3000
+   stop = 30
    step = 20
    for i in range(start, stop, step):
       ema = EMAIndicator(close = inputData, window = i)
@@ -579,19 +583,18 @@ def plotTree(classifier, featuresName):
    plt.show()
 
 
+def generateFormattedCsvFromFile():
+   data = pd.read_csv("pandas/DAT_ASCII_EURUSD_M1_2022_gennaio.csv")
+   formatDatabase(data)
 
+   data = pd.read_csv(BASE_PATH + FILE_1M_ALL2022_ORIGNAL)
+   formatDatabaseWritingLinesOneByOne(data)
+   
 
 
 def main():
-   #http://www.histdata.com/download-free-forex-historical-data/?/ascii/1-minute-bar-quotes/eurusd/2022
 
-   #data = pd.read_csv("pandas/DAT_ASCII_EURUSD_M1_2022_gennaio.csv")
-   #data = pd.read_csv(BASE_PATH + FILE_1M_ALL2022_ORIGNAL)
-   #formatDatabase(data)
-   #formatDatabaseWritingLinesOneByOne(data)
-
-   #data = pd.read_csv("pandas/DAT_ASCII_EURUSD_M1_2022_gennaio_class.csv")
-   data = pd.read_csv(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100)#FILE_1M_ALL2022_WITH_CLASS)
+   data = pd.read_csv(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100)
    (numberOfRows, numberOfColumns) = data.shape
    print("data set size = {0}".format(data.shape))
    
@@ -645,7 +648,7 @@ def main():
    #my_base_model = sklearn.tree.DecisionTreeClassifier(max_depth = 1)
    #classifier = AdaBoostClassifier(estimator = my_base_model, n_estimators = 200)
    
-   classifier = RandomForestClassifier(max_depth = 6, n_estimators = 20000, n_jobs = 2 )
+   classifier = RandomForestClassifier(max_depth = 6, n_estimators = 20, n_jobs = 2 )
    #classifier = RandomForestClassifier(max_depth = 10, n_estimators = 200)
    classifier = classifier.fit(x_train, y_train)
 

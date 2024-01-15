@@ -3,6 +3,10 @@ import numpy as np
 import os
 from pathlib import Path
 import matplotlib.pyplot as plt
+from ta.trend import MACD
+from ta.trend import EMAIndicator
+import math
+from copy import deepcopy
 
 '''
 file con funzioni comuni a entrambi i files
@@ -276,3 +280,109 @@ def AnalizeOrders(orders):
       print("bad trades: {0}".format(badTrades))
 
    return (openDays, globalGain, goodTrades, badTrades)
+
+
+
+'''
+qui sotto per funzione con e senza processi
+'''
+
+BASE_PATH = "daUSB/schei/EURUSD/"
+PATH_LOG = "log.txt"
+
+
+def WriteLog(logData):
+   line = "{0},{1},{2},{3},{4},{5},{6},{7},{8}\n".format(logData.fastParam,
+                                                logData.slowParam, 
+                                                logData.signalParam, 
+                                                logData.ema,
+                                                logData.openDays, 
+                                                logData.globalGain, 
+                                                logData.goodTrades, 
+                                                logData.badTrades,
+                                                logData.numberOfBuySignals)
+   f = open(BASE_PATH + PATH_LOG, "a")
+   f.write(line)
+   f.close()
+
+def ComputeMACD(data, fast, slow, signal):
+   #df = pd.DataFrame(data, columns = ['a'])
+   #porcodio = ta.macd(data.iloc[:,1], fast = fast, slow = slow, signal = signal)
+   #porcodio = np.array(porcodio)
+   
+   #usa questo se non parti da 0
+   #df = pd.DataFrame(data, columns = ['a'])
+   #porcodio = MACD(close = df.loc[:, 'a'], window_fast = fast, window_slow = slow, window_sign = signal)
+   
+   porcodio = MACD(close = data, window_fast = fast, window_slow = slow, window_sign = signal)
+   macd = porcodio.macd()
+   histogram = porcodio.macd_diff()
+   sign = porcodio.macd_signal()
+   
+   return macd, histogram, sign
+
+def order_openOrder(order, openPrice, openAt, orderType):
+   order.openPrice = openPrice
+   order.openAt = openAt
+   order.operationType = orderType
+   return order
+
+def function(close, fastParam, slowParam, signalParam, ema):
+   macd, histogram, signal = ComputeMACD(close, fastParam, slowParam, signalParam)
+   macd = np.array(macd)
+   histogram = np.array(histogram)
+   signal = np.array(signal)
+   length = close.shape[0]
+
+   emaSignal = EMAIndicator(close = close, window = ema)
+   emaSignal = emaSignal.ema_indicator()
+   emaSignal = np.array(emaSignal)
+
+   order = Order()
+   status = Status()
+   orders = []
+
+   for i in range(0, length-1):
+      if(math.isnan(macd[i]) == False and math.isnan(signal[i]) == False and math.isnan(emaSignal[i]) == False):
+         status.UpdateStatus(macd[i], signal[i], histogram[i], emaSignal[i], close[i])
+
+         buySignal = status.GenerateBuySignal()
+         sellSignal = status.GenerateSellSignal()
+
+         if(buySignal == True):
+            status.numberOfBuySignals += int(1)
+         
+         if(sellSignal == True):
+            status.numberOfSellSignals += int(1)
+         
+         if(status.currentlyHaveAnOrder == False):
+            if(buySignal == True):
+               status.currentlyHaveAnOrder = True
+               order = order_openOrder(order, close[i], i, 'buy')                           
+            elif(sellSignal == True):
+               status.currentlyHaveAnOrder = True
+               order = order_openOrder(order, close[i], i, 'sell')
+         else:
+            closeOrder = False
+
+            if(order.operationType == 'buy'):
+               #if(sellSignal == True):
+               if(close[i] > order.openPrice + 0.001 or close[i] < order.openPrice - 0.001):
+               #if(close[i] > order.openPrice + 0.01 or close[i] < order.openPrice - closeAt):
+                  closeOrder = True
+            elif(order.operationType == 'sell'):
+               if(close[i] > order.openPrice + 0.001 or close[i] < order.openPrice - 0.001):
+                  closeOrder = True
+
+            if(closeOrder == True):
+               order.closePrice = close[i]
+               status.currentlyHaveAnOrder = False
+               order.closeAt = i
+               orders.append(deepcopy(order))
+               order.Reset()
+         
+         status.UpdateAtTheEnd()
+   
+   return orders, status
+
+

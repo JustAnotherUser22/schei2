@@ -44,63 +44,67 @@ class haltCallback(tf.keras.callbacks.Callback):
             self.model.stop_training = True
 
 
-data = readData()
+def main():
+   data = readData()
 
-header = data[0]
-lines = data[1:]
+   header = data[0]
+   lines = data[1:]
 
-for i in range (0, len(lines)):
-   lines[i] = lines[i].replace(',','.')
+   for i in range (0, len(lines)):
+      lines[i] = lines[i].replace(',','.')
 
-#lines = data.split('\n')
-print("number of line = " + str(len(lines)))
-input = np.zeros( (len(lines), 2) )
-output = np.zeros( (len(lines), 1) )
+   #lines = data.split('\n')
+   print("number of line = " + str(len(lines)))
+   input = np.zeros( (len(lines), 2) )
+   output = np.zeros( (len(lines), 1) )
 
-for i, line in enumerate(lines):
-   values = [float(x) for x in line.split(';')[0:2]]
-   input[i, :] = values
-   data = line.split(';')[2]
-   if(data == "END"):
-      output[i, :] = 0
-   else:
-      output[i, :] = data
-   
-print("input shape = " + str(input.shape))
-print("output shape = " + str(output.shape))
+   for i, line in enumerate(lines):
+      values = [float(x) for x in line.split(';')[0:2]]
+      input[i, :] = values
+      data = line.split(';')[2]
+      if(data == "END"):
+         output[i, :] = 0
+      else:
+         output[i, :] = data
+      
+   print("input shape = " + str(input.shape))
+   print("output shape = " + str(output.shape))
 
-network = models.Sequential()
-network.add(layers.Dense(2, activation='relu', input_shape=(2,)))
-#network.add(layers.Dense(5, activation='relu'))
-#network.add(layers.Dense(2, activation='relu'))
-network.add(layers.Dense(1))
+   network = models.Sequential()
+   network.add(layers.Dense(2, activation='relu', input_shape=(2,)))
+   #network.add(layers.Dense(5, activation='relu'))
+   #network.add(layers.Dense(2, activation='relu'))
+   network.add(layers.Dense(1))
 
-network.summary()
+   network.summary()
 
-test = np.array([ [15.21, 35.44],
-                  [77.6, 11.3] ])
-test_output = np.array( [50.65, 88.9] )
+   test = np.array([ [15.21, 35.44],
+                     [77.6, 11.3] ])
+   test_output = np.array( [50.65, 88.9] )
 
-#non so perchè, ma se voglio usare un solo dato devo formattarlo così...
-#test = np.array( [[15.21, 35.44]] )
-#test_output = np.array( [50.65] )
+   #non so perchè, ma se voglio usare un solo dato devo formattarlo così...
+   #test = np.array( [[15.21, 35.44]] )
+   #test_output = np.array( [50.65] )
 
-network.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
+   network.compile(optimizer='rmsprop', loss='mse', metrics=['mae'])
 
-history = network.fit(input, 
-                      output, 
-                      epochs = 1000, 
-                      batch_size = 50, 
-                      validation_data = (test, test_output) , 
-                      callbacks=[haltCallback()] )
+   history = network.fit(input, 
+                        output, 
+                        epochs = 1000, 
+                        batch_size = 50, 
+                        validation_data = (test, test_output) , 
+                        callbacks=[haltCallback()] )
 
-printHistoryData(history)
+   printHistoryData(history)
 
-print("test shape = " + str(test.shape))
+   print("test shape = " + str(test.shape))
 
-prediction = network.predict(test)
-print(prediction)
-print(network.predict(test))
-print(network.get_weights())
+   prediction = network.predict(test)
+   print(prediction)
+   print(network.predict(test))
+   print(network.get_weights())
 
 
+
+if __name__ == "__main__":
+   main()

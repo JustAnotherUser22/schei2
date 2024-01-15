@@ -3,7 +3,8 @@ import matplotlib.pyplot as plt
 import time
 from HIST_Manager import *
 
-PATH_DATA = "D:\script\ptr\EUR_USD Dati Storici 2022.csv"
+PATH_DATA = "D:\script\schei2\supAndRes\EUR_USD Dati Storici.csv"
+#PATH_DATA = "D:\script\ptr\EUR_USD Dati Storici 2022.csv"
 #PATH_DATA = "C:\Users\Marco\Documents\python\supAndRes\EUR_USD Dati Storici.csv"
 
 MAX = 1
@@ -158,7 +159,9 @@ def originalMain():
  
    # here we are creating sub plots
    figure, ax = plt.subplots()
-   line1, line2, line3, = ax.plot(list(range(1, 30+1)), np.linspace(min(close), max(close), 30))
+   xRange = list(range(1, 30+1))
+   yRange = np.linspace(min(close), max(close), 30)
+   line1, line2, line3, = ax.plot(xRange, yRange)
    
    dataLength = len(close)
 
@@ -180,10 +183,9 @@ def originalMain():
       if(len(lastThreeMin) == 3):
          pass
 
-      x = list(range(1, 30+1))
       y = close[i:i+30]
       
-      line1.set_xdata(x)
+      line1.set_xdata(xRange)
       line1.set_ydata(y)
 
       figure.canvas.draw()
@@ -357,8 +359,8 @@ def plotDifferenceWithPreviousTimestamp():
    plt.show()
 
 if __name__ == "__main__":
-   #originalMain()
+   originalMain()
    #main()
-   testWithDataFromMinuteChart()
+   #testWithDataFromMinuteChart()
    #testPrintCertainNumberOfData()
    #plotDifferenceWithPreviousTimestamp()

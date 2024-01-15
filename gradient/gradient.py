@@ -82,8 +82,8 @@ def gradient3D():
 
 def main():
    #gradient1D()
-   gradient2D()
-   #gradient3D()
+   #gradient2D()
+   gradient3D()
 
 
 if __name__ == "__main__":
