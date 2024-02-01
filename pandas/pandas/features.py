@@ -28,11 +28,6 @@ def plotROCCurve(y, y_pred):
    RocCurveDisplay.from_predictions(y, y_pred, plot_chance_level = True)
    plt.show()
 
-def plotPrecisionAndRecallWithEstimator(classifier, x_test, y_test):
-   display = PrecisionRecallDisplay.from_estimator(classifier, x_test, y_test, name = "LinearSVC", plot_chance_level = True)
-   display.ax_.set_title("2-class Precision-Recall curve")   
-   plt.show()
-
 def plotPrecisionAndRecallWithPredictions(y_true, y_pred):
    #display = PrecisionRecallDisplay.from_estimator(classifier, x_test, y_test, name = "LinearSVC", plot_chance_level = True)
    display = PrecisionRecallDisplay.from_predictions(y_true = y_true, y_pred = y_pred, name = "LinearSVC", plot_chance_level = True)

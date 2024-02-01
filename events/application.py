@@ -115,6 +115,57 @@ def performMultipleIteration():
 
    print("end")
 
+def performMultipleIterationWithoutMultipleLoops():
+   lastNumber, lastThreashold, lastDelta = LoadMostRecentValues()
+
+   threshold = int(1)
+   numberOfSamples = int(2)
+   delta = float(0.0001)
+
+   keepGoing = True
+
+   while (keepGoing == True):
+
+      if(threshold < 100 and
+         numberOfSamples < 200 and
+         delta < 0.0005):
+         if(delta < 0.005):
+            delta += float(0.0001)
+         elif(numberOfSamples < 200):
+            delta = float(0.0001)
+            numberOfSamples += int(1)
+         elif(threshold < 100):
+            delta = float(0.0001)
+            numberOfSamples += int(1)       
+            threshold += int(1)
+      else:
+         keepGoing = False
+
+      if(keepGoing):
+         publishResetMessage()
+
+         algorithm.localAlgo.NUMBER_OF_SAMPLES = int(numberOfSamples)
+         algorithm.localAlgo.THRESHOLD = int(threshold)
+         manager.PROFIT_OR_STOP_DELTA = float(delta)
+
+         while(dataReader.dataEnded == False):
+            dataReader.manager()
+            algorithm.manager()
+            manager.manager()
+            history.manager()
+
+         #history.printAll()
+         history.printFinalGain()
+         line = "{0},{1},{2}".format(numberOfSamples, threshold, delta)
+         line += ','
+         line += history.line + '\n'
+         f = open(PATH_LOG, "a")
+         f.write(line)
+         f.close()
+
+         SaveMostRecentValues(numberOfSamples, threshold, delta)
+
+   print("end")
 
 def main():
    broker_setDispatchFunction(dispatchFunction)

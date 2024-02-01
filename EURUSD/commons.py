@@ -7,6 +7,7 @@ from ta.trend import MACD
 from ta.trend import EMAIndicator
 import math
 from copy import deepcopy
+from dataFolder import dataFiles
 
 '''
 file con funzioni comuni a entrambi i files
@@ -301,7 +302,7 @@ def WriteLog(logData):
                                                 logData.goodTrades, 
                                                 logData.badTrades,
                                                 logData.numberOfBuySignals)
-   f = open(BASE_PATH + PATH_LOG, "a")
+   f = open(dataFiles.BASE_PATH + dataFiles.PATH_LOG, "a")
    f.write(line)
    f.close()
 

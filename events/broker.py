@@ -2,6 +2,7 @@
 MAX_NUMBER_OF_ELEMENT = 20
 BLOCKING = 1
 NON_BLOCKING = 2
+WITH_PROCESS = 3
 
 class Broker:
    def __init__(self, mode):
@@ -10,12 +11,19 @@ class Broker:
       self.writeIndex = 0
       self.readIndex = 0
       self.numberOfElementInserted = 0
+      self.subscribers = []
 
    def dispatch(self, message):
       if(self.mode == BLOCKING):
          self.dispatchBlocking(message)
       elif(self.mode == NON_BLOCKING):
          self.dispatchNonBlocking(message)
+      elif(self.mode == WITH_PROCESS):
+         self.dispatchWithProcess(message)
+
+   def dispatchWithProcess(self, message):
+      for element in self.subscribers:
+         element.messageHandler(message)
 
    def dispatchBlocking(self, message):
       pass

@@ -1,3 +1,7 @@
+
+import sys
+sys.path.insert(1, "schei2/EURUSD/dataFolder")
+
 import pandas as pd
 import matplotlib.pyplot as plt
 from sklearn.tree import DecisionTreeClassifier
@@ -18,6 +22,7 @@ import features
 from datetime import datetime
 import joblib
 import ta
+import dataFiles
 
 
 '''
@@ -25,12 +30,16 @@ carica dei dati
 aggiunge delle features scelte dall'utente
 fa il train di una random forest
 mostra valori e plot di alcuni dati relativi alle performance del modello appena creato
+
+!! -- fatto prendendo come spunto i due pdf di towardsDataScience -- !!
+
 '''
 
-BASE_PATH = "schei2/EURUSD/dataFolder/"
-FILE_1M_ALL2022_WITH_CLASS = "DAT_ASCII_EURUSD_M1_2022_formatted_class.csv"
-FILE_1M_ALL2022_ORIGNAL = "DAT_ASCII_EURUSD_M1_2022_formatted.csv"
-FILE_1M_ALL2022_WINDOWS_100 = "DAT_ASCII_EURUSD_M1_2022_window_100.csv"
+#BASE_PATH = "schei2/EURUSD/dataFolder/"
+BASE_PATH = "schei2/pandas/pandas/"
+
+
+
 
 ### data manager
 
@@ -38,65 +47,61 @@ CLASS_DEFAULT_VALUE = 0
 CLASS_POSITIVE_OUTCOME_IN_WINDOW = 1
 CLASS_NEGATIVE_OUTCOME_IN_WINDOW = -1
 
-def computeClass(data, realNumberOfDataToConsider, timeWindow):
-   print("inizio definizione classi")
-   for i in range(realNumberOfDataToConsider-1):
-      currentElement = data.iloc[i]
-      currentValue = currentElement[1]
-      end = False
 
-      for j in range(timeWindow):
-         if(end == False):
-            nextElement = data.iloc[i+j]
-            nextValue = nextElement[1]
+def computeClassForSingleEntry(data, whichEntry, timeWindow):
 
-            if(nextValue > currentValue + 0.001):
-               data.loc[i, "class"] = CLASS_POSITIVE_OUTCOME_IN_WINDOW
-               end = True
-            #if(nextValue < currentValue - 0.001):
-            #   data.loc[i, "class"] = CLASS_NEGATIVE_OUTCOME_IN_WINDOW
-            #   end = True
+   i = whichEntry
+
+   currentElement = data.iloc[i]
+   currentValue = currentElement[1]
+   end = False
+
+   for j in range(timeWindow):
+      if(end == False):
+         nextElement = data.iloc[i+j]
+         nextValue = nextElement[1]
+
+         if(nextValue > currentValue + 0.001):
+            data.loc[i, "class"] = CLASS_POSITIVE_OUTCOME_IN_WINDOW
+            end = True
+         #if(nextValue < currentValue - 0.001):
+         #   data.loc[i, "class"] = CLASS_NEGATIVE_OUTCOME_IN_WINDOW
+         #   end = True
+
+
 
 def formatDatabase(data):
    (numberOfRows, numberOfColumns) = data.shape
 
-   data.insert(numberOfColumns, "class", [CLASS_DEFAULT_VALUE]*numberOfRows)
+   data.insert(numberOfColumns, "class", [CLASS_DEFAULT_VALUE] * numberOfRows)
    
    numberOfDataToConsider = numberOfRows #1000
-   #print(data.head())
-   #print(data.shape)
-
+   
    timeWindow = 100#500 #trova massimo o minimo entro questo valore di entry nel futuro
    realNumberOfDataToConsider = numberOfDataToConsider - timeWindow
 
-   computeClass(data, realNumberOfDataToConsider, timeWindow)
+   for i in range(0, realNumberOfDataToConsider-1, 1):
+      computeClassForSingleEntry(data, i, timeWindow)
 
    #NB index = false -> non aggiunge una prima colonna con indici
    #data.to_csv("pandas/DAT_ASCII_EURUSD_M1_2022_gennaio_class.csv", index = False)
    #data.to_csv("pandas/DAT_ASCII_EURUSD_M1_2022_formatted_class.csv", index = False)
-   data.to_csv(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100, index = False)
+   data.to_csv(dataFiles.BASE_PATH + dataFiles.FILE_2022_1M_WITH_WINDOW, index = False)
 
 
-def formatDatabaseWritingLinesOneByOne(data):
-   '''
-   se il file è troppo grande non riesco a scriverlo tutto in una volta perchè mi
-   manca spazio su disco
-   no dio can non mi ricordo perchè ho fatto questa funzione
-   '''
+def computeCurrentLengthOfFile(path):
    index = 0
-   #my_file = Path("pandas/DAT_ASCII_EURUSD_M1_2022_formatted_class.csv")
-   my_file = Path(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100)
+   
+   my_file = Path(path)
 
    if my_file.is_file():
-      #f = open("pandas/DAT_ASCII_EURUSD_M1_2022_formatted_class.csv", 'r')
-      f = open(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100, 'r')
+      f = open(path, 'r')
       lines = f.readlines()
       f.close()
       index = len(lines)
    else:
       index = 0
-      #f = open("pandas/DAT_ASCII_EURUSD_M1_2022_formatted_class.csv", 'w')
-      f = open(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100, 'w')
+      f = open(path, 'w')
       header = data.columns
       header = list(header)
       line = ""
@@ -106,39 +111,36 @@ def formatDatabaseWritingLinesOneByOne(data):
       line = line + '\n'
       f.write(str(line))
       f.close()
-  
+
+   return index
+
+def formatDatabaseWritingLinesOneByOne(data):
+   '''
+   se il file è troppo grande non riesco a scriverlo tutto in una volta perchè mi
+   manca spazio su disco
+   no dio can non mi ricordo perchè ho fatto questa funzione
+   forse perchè stava un casino di tempo a farlo e volevo fare in modo di fermarlo e riprendere da dove era finito prima
+   '''
+
+   path = dataFiles.BASE_PATH + dataFiles.FILE_2022_1M_WITH_WINDOW
+   index = computeCurrentLengthOfFile(path)
+
    
    (numberOfRows, numberOfColumns) = data.shape
 
    data.insert(numberOfColumns, "class", [CLASS_DEFAULT_VALUE]*numberOfRows)
    
    numberOfDataToConsider = numberOfRows #1000
-   #print(data.head())
-   #print(data.shape)
-
-   #timeWindow = 500 #trova massimo o minimo entro questo valore di entry nel futuro
+   
    timeWindow = 100 #trova massimo o minimo entro questo valore di entry nel futuro
    realNumberOfDataToConsider = numberOfDataToConsider - timeWindow
 
    for i in range(index, realNumberOfDataToConsider-1, 1):
-      currentElement = data.iloc[i]
-      currentValue = currentElement[1]
-      end = False
-
-      for j in range(timeWindow):
-         if(end == False):
-            nextElement = data.iloc[i+j]
-            nextValue = nextElement[1]
-
-            if(nextValue > currentValue + 0.001):
-               data.loc[i, "class"] = CLASS_POSITIVE_OUTCOME_IN_WINDOW
-               end = True
-            if(nextValue < currentValue - 0.001):
-               data.loc[i, "class"] = CLASS_NEGATIVE_OUTCOME_IN_WINDOW
-               end = True
+      
+      computeClassForSingleEntry(data, i, timeWindow)
       
       #f = open("pandas/DAT_ASCII_EURUSD_M1_2022_formatted_class.csv", 'a')
-      f = open(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100, 'a')
+      f = open(path, 'a')
       entry = data.iloc[[i]].to_csv(header = False, index = False)      #con "to_csv" uso il carattere ',' come sepratore
       line = str(entry)
       line = line.replace("\r\n", '')
@@ -584,33 +586,37 @@ def plotTree(classifier, featuresName):
 
 
 def generateFormattedCsvFromFile():
-   data = pd.read_csv("pandas/DAT_ASCII_EURUSD_M1_2022_gennaio.csv")
-   formatDatabase(data)
+   #tutto in una volta
+   #data = pd.read_csv(dataFiles.BASE_PATH + dataFiles.FILE_2022_1M_GENUARY)
+   #formatDatabase(data)
 
-   data = pd.read_csv(BASE_PATH + FILE_1M_ALL2022_ORIGNAL)
+   #in più volte
+   data = pd.read_csv(dataFiles.BASE_PATH + dataFiles.FILE_2022_1M_FORMATTED)
    formatDatabaseWritingLinesOneByOne(data)
    
 
-
-def main():
-
-   data = pd.read_csv(BASE_PATH + FILE_1M_ALL2022_WINDOWS_100)
-   (numberOfRows, numberOfColumns) = data.shape
-   print("data set size = {0}".format(data.shape))
-   
-   printCountOfEntryForEachClass(data, numberOfRows)
-
+def substituteClassValue(data):
    #for i in range(numberOfRows):
    #   if(data.iloc[i]['class'] == 0):
    #      data.at[i, 'class'] = -1
 
    #https://www.geeksforgeeks.org/how-to-replace-values-in-column-based-on-condition-in-pandas/
-   #data['class'] = np.where(data['class'] == 0, -1, data['class'])
+   data['class'] = np.where(data['class'] == CLASS_DEFAULT_VALUE, CLASS_NEGATIVE_OUTCOME_IN_WINDOW, data['class'])
 
    #data = data[data['class'] != 0]
    #data = pd.DataFrame(data)
    #data = np.where( (data['class'] == 1) | (data['class'] == -1) )
    #data = data[ (data['class'] == 1) | (data['class'] == -1) ]
+
+def main():
+
+   data = pd.read_csv(dataFiles.BASE_PATH + dataFiles.FILE_2022_1M_WITH_WINDOW)
+   (numberOfRows, numberOfColumns) = data.shape
+   print("data set size = {0}".format(data.shape))
+   
+   printCountOfEntryForEachClass(data, numberOfRows)
+
+   substituteClassValue(data)
 
    printCountOfEntryForEachClass(data, numberOfRows)
 

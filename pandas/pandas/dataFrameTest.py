@@ -94,7 +94,7 @@ def dontMindMe(data):
    for i in range(numberOfRows):
       for j in range(numberOfCloumn):
          data.iat[i, j] = 0
-   #data.iat[0, 1] = 0
+   
 
 def changeDataFrameInFunction():
    data = pd.DataFrame({'Yes': [50, 21], 'No': [131, 2], 'maybe': ['one', 'two']})

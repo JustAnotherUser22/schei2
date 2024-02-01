@@ -1,6 +1,9 @@
+import sys
+sys.path.insert(1, "schei2/EURUSD/dataFolder")
 
 from broker import *
 from messages import *
+import dataFiles
 
 '''
 file che si occupa di leggere i dati grezzi in arrivo e di
@@ -49,8 +52,8 @@ class DataReader:
       #filePath = "D:\script\events\EUR_USD Dati Storici 2022.csv"
       #filePath = "C:/Users/Marco/Documents/python/supAndRes/EURUSD_M1_2022_02.csv"
       
-      #filePath = "D:\script\supAndRes\EURUSD_M1_2022_onlyFebruary.csv"
-      filePath = "D:\script\supAndRes\DAT_ASCII_EURUSD_T_2022_onlyFebruary.csv"
+      #filePath = "D:\script\schei2\supAndRes\EURUSD_M1_2022_onlyFebruary.csv"
+      filePath = "D:\script\schei2\supAndRes\DAT_ASCII_EURUSD_T_2022_onlyFebruary.csv"
       
       #print("sto per caricare i dati")
 
@@ -61,8 +64,10 @@ class DataReader:
 
       lines = lines[121290 : 369117]   #da 3 a 7
 
-      dataReader.lines = lines
-      dataReader.callback = self.scanData
+      #dataReader.lines = lines
+      self.lines = lines
+      #dataReader.callback = self.scanData
+      self.callback = self.scanData
       self.counter = 0
 
       #print("finito")

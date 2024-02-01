@@ -38,10 +38,10 @@ def readData():
    return data
 
 class haltCallback(tf.keras.callbacks.Callback):
-    def on_epoch_end(self, epoch, logs={}):
-        if(logs.get('loss') <= 0.5):
-            print("\n\n\nReached 0.05 loss value so cancelling training!\n\n\n")
-            self.model.stop_training = True
+   def on_epoch_end(self, epoch, logs={}):
+      if(logs.get('loss') <= 0.5):
+         print("\n\n\nReached 0.05 loss value so cancelling training!\n\n\n")
+         self.model.stop_training = True
 
 
 def main():

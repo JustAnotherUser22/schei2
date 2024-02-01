@@ -12,8 +12,8 @@ MIN = 2
 
 class Point:
    def __init__(self, x, y):
-      self.x = x
-      self.y = y
+      self.x = x  #"istante temporale" del campione
+      self.y = y  #valore della quota
 
 #############################
 #  private methods
@@ -142,26 +142,25 @@ def printLineBetweenTwoPoints(first, second):
 
 def originalMain():
    """
-   funzione originale per plottare i valori massimi e minimi e una riga che collega tra di loro questi valori
+   funzione originale per plottare i un grafico dei valori in movimento
    """
    
+   DATA_TO_PRINT = 30
+
    lastThreeMax = []
    lastThreeMin = []
    
    data = LoadDataFromCSV()
    close = data[:, 0]
 
-   #plt.plot(close)
-   #plt.show()
-
    # to run GUI event loop
    plt.ion()
  
    # here we are creating sub plots
    figure, ax = plt.subplots()
-   xRange = list(range(1, 30+1))
-   yRange = np.linspace(min(close), max(close), 30)
-   line1, line2, line3, = ax.plot(xRange, yRange)
+   xRange = list(range(1, DATA_TO_PRINT + 1))
+   yRange = np.linspace(min(close), max(close), DATA_TO_PRINT)
+   line1, = ax.plot(xRange, yRange)
    
    dataLength = len(close)
 
@@ -170,21 +169,12 @@ def originalMain():
    step = 1
 
    for i in range(start, stop, step):
-      if(DetectMax(close[i-2], close[i-1], close[i]) == True):
-         AddValueToQueue(lastThreeMax, Point(close[i-1], i-1))
-
-      if(DetectMin(close[i-2], close[i-1], close[i]) == True):
-         AddValueToQueue(lastThreeMin, Point(close[i-1], i-1))
-
-      if(len(lastThreeMax) == 3):
-         line2.set_xdata(list(range(1, 15)))
-         line2.set_ydata(list(range(1, 15)))
       
-      if(len(lastThreeMin) == 3):
-         pass
+      currentStartPlot = i
+      currentEndPlot = i + DATA_TO_PRINT
 
-      y = close[i:i+30]
-      
+      y = close[currentStartPlot : currentEndPlot]
+
       line1.set_xdata(xRange)
       line1.set_ydata(y)
 
@@ -192,6 +182,7 @@ def originalMain():
       figure.canvas.flush_events()
 
       time.sleep(0.1)
+
 
 def main():
    """
@@ -346,21 +337,11 @@ def testPrintCertainNumberOfData():
       
    print("end")
 
-def plotDifferenceWithPreviousTimestamp():
-   allData = load_HIST_Data()
-   allClose = np.array(allData[:, 9])
 
-   delta = []
-
-   for i in range(len(allClose)):
-      delta.append(allClose[i] - allClose[i-1])
-
-   plt.plot(delta)
-   plt.show()
 
 if __name__ == "__main__":
-   originalMain()
+   #originalMain()
    #main()
-   #testWithDataFromMinuteChart()
+   testWithDataFromMinuteChart()
    #testPrintCertainNumberOfData()
-   #plotDifferenceWithPreviousTimestamp()
+   
