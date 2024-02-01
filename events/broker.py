@@ -26,7 +26,9 @@ class Broker:
          element.messageHandler(message)
 
    def dispatchBlocking(self, message):
-      pass
+      #pass
+      for element in self.subscribers:
+         element.messageHandler(message)
 
    def dispatchNonBlocking(self, message):
       self.queue.append(message)
@@ -43,7 +45,8 @@ class Broker:
             self.writeIndex = int(0)
          self.dispatch(message)
 
-broker = Broker(BLOCKING)
+#broker = Broker(BLOCKING)
 
 def broker_setDispatchFunction(func):
-   broker.dispatchBlocking = func
+   #broker.dispatchBlocking = func
+   pass

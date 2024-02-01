@@ -14,6 +14,7 @@ class Balance:
    def __init__(self):
       self.base = 0
       self.quote = 0
+      
 
    def manageOrder(self, order):
 
@@ -33,10 +34,11 @@ class Balance:
 
 
 class History:
-   def __init__(self):
+   def __init__(self, broker):
       self.allOrders = []
       self.balance = Balance()
       self.line = ""
+      self.broker = broker
 
    def printAll(self):
       for element in self.allOrders:
@@ -86,5 +88,5 @@ class History:
          self.__init__()
 
 
-history = History()
+#history = History()
 

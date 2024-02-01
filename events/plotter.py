@@ -14,6 +14,7 @@ class Plotter:
       self.closePositions = []
       self.macdData = []
       self.macdCounter = 0
+
       
    #def manager(self):
    #   self.callback()
@@ -37,4 +38,4 @@ class Plotter:
          self.__init__()
          
    
-plotter = Plotter()
+#plotter = Plotter()

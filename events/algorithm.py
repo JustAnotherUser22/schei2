@@ -2,7 +2,7 @@
 from broker import *
 from messages import *
 from algorithmsFolder.supportAndResistance import supportAndResistance
-from algorithmsFolder.MovingAverage import movingAverage
+from algorithmsFolder.MovingAverage import MovingAverage
 
 
 class Entry:
@@ -37,174 +37,47 @@ class TwoElementQueue:
 
 
 class Algorithm:
-   def __init__(self):
-      self.localAlgo = movingAverage
+   def __init__(self, broker):
+      self.localAlgo = MovingAverage(broker)
+      self.broker = broker
       
    def manager(self):
-      self.localAlgo.manager()
+      #self.localAlgo.manager()
+      if(self.localAlgo.needToBuy == True):
+         self.sendBuyOrder(self.localAlgo.lastValue)
+         self.localAlgo.needToBuy = False
+
+      if(self.localAlgo.needToSell == True):
+         self.sendSellOrder(self.localAlgo.lastValue)
+         self.localAlgo.needToSell = False
       
    def messageHandler(self, message):
       self.localAlgo.messageHandler(message)
 
 
-class AlgorithmOriginale:
-   def __init__(self):
-      self.lastThreePoints = []
-      self.maxPoints = TwoElementQueue()
-      self.minPoints = TwoElementQueue()
-      self.isInHysteresisregion = False
-      self.callback = self.cb_Idle
-      self.lastReceivedData = None
+   def sendBuyOrder(self, lastData):
+      value = lastData["value"]
+      dataTime = lastData["time"]
+      self.sendOrder(SIGNAL_BUY, value, dataTime)
 
-   def manager(self):
-      self.callback()
-
-   def messageHandler(self, message):
-      if(message.header.type == NEW_DATA_ARRIVED):
-         self.lastReceivedData = message.payload
-         data = message.payload["ultimo"]
-         time = message.payload["time"]
-         entry = Entry(time, data)
-         entry.absoluteTimestamp = message.payload["time"]["tempo assoluto"]
-         self.lastThreePoints.append(entry)
-         
-         if(len(self.lastThreePoints) > 3):
-            self.lastThreePoints.pop(0)
-
-         if(len(self.lastThreePoints) == 3):
-            first = self.lastThreePoints[0].value
-            second = self.lastThreePoints[1].value
-            third = self.lastThreePoints[2].value
-
-            if(detectMax(first, second, third) == True):
-               self.maxPoints.addItem(self.lastThreePoints[1])
-
-            if(detectMin(first, second, third) == True):
-               self.minPoints.addItem(self.lastThreePoints[1])
-            """
-            currentPosition = float(data)
-
-            if(len(self.maxPoints.queue) == 2):
-               m, q = self.maxPoints.computeSlopeAndInterceptor()
-
-               currentPositionMaxLine = float(entry.absoluteTimestamp) * float(m) + float(q)
-
-               if(self.isInHysteresisregion == False):
-                  if(currentPosition < currentPositionMaxLine + 0.0003 and currentPosition > currentPositionMaxLine - 0.0003):
-                     self.isInHysteresisregion = True
-               else:
-                  if(currentPosition > currentPositionMaxLine + 0.0003):
-                     #ha decisamente sfondato il limite superiore
-                     sendBuyOrder(self.lastReceivedData)
-                  if(currentPosition < currentPositionMaxLine - 0.0003):
-                     #ha sfondato il limite ma sta tornando indietro
-                     sendSellOrder(self.lastReceivedData)
-                     
-            if(len(self.minPoints.queue) == 2):
-               m, q = self.minPoints.computeSlopeAndInterceptor()
-
-               currentPositionMinLine = float(entry.absoluteTimestamp) * float(m) + float(q)
-
-               if(self.isInHysteresisregion == False):
-                  if(currentPosition < currentPositionMinLine + 0.0003 and currentPosition > currentPositionMinLine - 0.0003):
-                     self.isInHysteresisregion = True
-               else:
-                  if(currentPosition > currentPositionMinLine + 0.0003):
-                     #ha decisamente sfondato il limite superiore
-                     #sendBuyOrder(currentPosition)
-                     pass
-                  if(currentPosition < currentPositionMinLine - 0.0003):
-                     #ha sfondato il limite ma sta tornando indietro
-                     #sendSellOrder(currentPosition)
-                     pass
-            """
-
-      elif(message.header.type == RESET):
-         self.__init__()
-    
-
-   def cb_inIdleRegion(self):
-      self.callback = self.computeNextState()      
-
-   def cb_inUpperHysteresisRegion(self):
-      self.callback = self.computeNextState()
-
-      if(self.callback == self.cb_inIdleRegion):
-         sendSellOrder(self.lastReceivedData)
-      
-   def cb_overUpperHysteresisRegion(self):
-      sendBuyOrder(self.lastReceivedData)
-      self.callback = self.computeNextState()
-      
-   def cb_inUnderHysteresisRegion(self):
-      self.callback = self.computeNextState()      
-
-      if(self.callback == self.cb_inIdleRegion):
-         sendBuyOrder(self.lastReceivedData)
-      
-   def cb_underUnderHysteresisRegion(self):
-      sendSellOrder(self.lastReceivedData)
-      self.callback = self.computeNextState()
-      
-   def cb_Idle(self):
-      if(len(self.maxPoints.queue) == 2 and 
-         len(self.minPoints.queue) == 2 and
-         len(self.lastThreePoints) == 3):
-         self.callback = self.computeNextState()
-
-
-   def computeNextState(self):
-      if(self.lastReceivedData != None):
-         currentPosition = self.lastReceivedData["ultimo"]
-         currentAbsoluteTimeStamp = self.lastReceivedData["time"]["tempo assoluto"]
-
-         m, q = self.maxPoints.computeSlopeAndInterceptor()
-         currentPositionMaxLine = float(currentAbsoluteTimeStamp) * float(m) + float(q)
-
-         m, q = self.minPoints.computeSlopeAndInterceptor()
-         currentPositionMinLine = float(currentAbsoluteTimeStamp) * float(m) + float(q)
-
-         hysteresis = float(0.0005)
-
-         if(currentPosition > currentPositionMaxLine + hysteresis):
-            nextState = self.cb_overUpperHysteresisRegion
-         elif(currentPosition > currentPositionMaxLine - hysteresis and currentPosition <= currentPositionMaxLine + hysteresis):
-            nextState = self.cb_inUpperHysteresisRegion
-         elif(currentPosition <= currentPositionMaxLine - hysteresis and currentPosition >= currentPositionMinLine + hysteresis):
-            nextState = self.cb_inIdleRegion
-         elif(currentPosition >= currentPositionMinLine - hysteresis and currentPosition < currentPositionMinLine + hysteresis):
-            nextState = self.cb_inUnderHysteresisRegion
-         elif(currentPosition < currentPositionMinLine - hysteresis):
-            nextState = self.cb_underUnderHysteresisRegion
-         
-         return nextState
-      else:
-         return self.callback
-
-
-def sendBuyOrder(lastData):
-   value = lastData["ultimo"]
-   dataTime = lastData["time"]
-   sendOrder(SIGNAL_BUY, value, dataTime)
-
-def sendSellOrder(lastData):
-   value = lastData["ultimo"]
-   dataTime = lastData["time"]
-   sendOrder(SIGNAL_SELL, value, dataTime)
- 
-def sendOrder(orderType, data, time):
-   message = Message()
-   message.header.sender = SENDER_ALGORITHM
+   def sendSellOrder(self, lastData):
+      value = lastData["value"]
+      dataTime = lastData["time"]
+      self.sendOrder(SIGNAL_SELL, value, dataTime)
    
-   message.header.type = orderType
-   
-   dictionary = {
-      "value": data,
-      "time": time
-   }
-   
-   message.payload = dictionary
-   broker.dispatch(message)
+   def sendOrder(self, orderType, data, time):
+      message = Message()
+      message.header.sender = SENDER_ALGORITHM
+      
+      message.header.type = orderType
+      
+      dictionary = {
+         "value": data,
+         "time": time
+      }
+      
+      message.payload = dictionary
+      self.broker.dispatch(message)
 
 '''
 il messaggio è di questo tipo
@@ -221,7 +94,7 @@ payload : {
 '''
 
    
-algorithm = Algorithm()
+#algorithm = Algorithm()
 
 #############################
 #  funzioni locali per il funzionamento dell'algoritmo

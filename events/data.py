@@ -34,11 +34,12 @@ payload : {
 '''
 
 class DataReader:
-   def __init__(self):
+   def __init__(self, broker):
       self.lines = 0
       self.counter = 0
       self.dataEnded = False
       self.callback = self.OpenFile
+      self.broker = broker
 
    def manager(self):
       self.callback()
@@ -80,18 +81,17 @@ class DataReader:
          #data = parseLine(line, self.counter)
          #data = parseLineFormAnotherFormat(line, self.counter)
          data = parseLineFormTickFormat(line, self.counter)
-         publish(data)
+         self. publish(data)
          self.counter += int(1)
       else:
          self.dataEnded = True
 
-
-def publish(data):
-   message = Message()
-   message.header.sender = SENDER_DATA
-   message.header.type = NEW_DATA_ARRIVED
-   message.payload = data
-   broker.dispatch(message)
+   def publish(self, data):
+      message = Message()
+      message.header.sender = SENDER_DATA
+      message.header.type = NEW_DATA_ARRIVED
+      message.payload = data
+      self.broker.dispatch(message)
 
 def parseLine(line, counter):
    info = line.split("\",\"")
@@ -188,6 +188,6 @@ def parseLineFormTickFormat(line, counter):
    return dictionary
 
 
-dataReader = DataReader()
+#dataReader = DataReader()
 
 

@@ -17,13 +17,27 @@ PATH_LAST_PARAMETERS = "D:/script/events/last_parameters.txt"
 
 
 def dispatchFunction(message):
-   dataReader.messageHandler(message)
-   algorithm.messageHandler(message)
-   manager.messageHandler(message)
-   history.messageHandler(message)
-   plotter.messageHandler(message)
+   #dataReader.messageHandler(message)
+   #algorithm.messageHandler(message)
+   #manager.messageHandler(message)
+   #history.messageHandler(message)
+   #plotter.messageHandler(message)
+   pass
 
 def performSingleIteration():
+
+   broker = Broker(BLOCKING)
+   dataReader = DataReader(broker)
+   algorithm = Algorithm(broker)
+   manager = Manager(broker)
+   history = History(broker)
+   plotter = Plotter()
+
+   broker.subscribers.append(dataReader)
+   broker.subscribers.append(algorithm)
+   broker.subscribers.append(manager)
+   broker.subscribers.append(history)
+   broker.subscribers.append(plotter)
    
    threshold = int(1)
    numberOfSamples = int(2)
@@ -168,6 +182,7 @@ def performMultipleIterationWithoutMultipleLoops():
    print("end")
 
 def main():
+   
    broker_setDispatchFunction(dispatchFunction)
    performSingleIteration()
    
@@ -176,7 +191,7 @@ def publishResetMessage():
    message = Message()
    message.header.sender = SENDER_APPLICATION
    message.header.type = RESET
-   broker.dispatch(message)
+   #broker.dispatch(message)
 
 
 

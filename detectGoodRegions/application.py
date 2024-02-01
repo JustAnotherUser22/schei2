@@ -17,6 +17,14 @@ ENTER_POSITIVE = 0
 DO_NOTHING = 1
 ENTER_NEGATIVE = 2
 
+'''
+carica un file
+calcola una nuova colonna e la aggiunge al file
+se il valore è > di una certa soglia -> la clasee è "posso comprare"
+se il valore è < di una certa soglia -> la clasee è "posso vendere"
+altrimenit la clasee è "non faccio niente"
+crea una NN che prova a restituire i valori della colonna
+'''
 
 
 def GenerateFile():
@@ -228,11 +236,11 @@ def printHistoryData(history):
 
 
 if __name__ == "__main__":
-   #main()
+   main()
 
-   file = pd.read_csv(dataFiles.BASE_PATH + dataFiles.FILE_2022_1M_FORMATTED)
-   print(file)
-   print(file.columns)
+   #file = pd.read_csv(dataFiles.BASE_PATH + dataFiles.FILE_2022_1M_FORMATTED)
+   #print(file)
+   #print(file.columns)
 
    #value = file["Bar OPEN Bid Quote"]
    #print(value)

@@ -13,13 +13,14 @@ aperta vengono ignorati
 
 
 class Manager:
-   def __init__(self):
+   def __init__(self, broker):
       self.callback = self.cb_noOrder
       self.lastValueReceived = None
       self.timestampLastData = None
       self.order = Order()
       self.canPerformOperation = True
       self.PROFIT_OR_STOP_DELTA = 0.0002
+      self.broker = broker
 
    def manager(self):
       #self.callback()
@@ -104,10 +105,10 @@ class Manager:
       message.header.sender = SENDER_MANAGER
       message.header.type = ORDER_HAS_BEEN_CLOSED
       message.payload = copy.copy(self.order)
-      broker.dispatch(message)      
+      self.broker.dispatch(message)      
       self.order.reset()
 
 
-manager = Manager()
+#manager = Manager()
 
 

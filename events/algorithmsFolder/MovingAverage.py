@@ -4,12 +4,18 @@ from messages import *
 
 
 class MovingAverage:
-   def __init__(self):
+   def __init__(self, broker):
       self.array = []
       self.stabilityCounter = int(0)
       self.NUMBER_OF_SAMPLES = 100
       self.THRESHOLD = 15
       self.callback = self.cb_idle
+      
+      self.needToBuy = False
+      self.needToSell = False
+      self.lastValue = 0
+
+      self.broker = broker
 
    def manager(self):
       #eseguo operazioni solo quando arriva un nuovo dato
@@ -24,7 +30,7 @@ class MovingAverage:
          if(len(self.array) > self.NUMBER_OF_SAMPLES):
             self.array.pop(0)
             average = Average(self.array)
-            publicNewMACDEntry(average)
+            self.publicNewMACDEntry(average)
             if(data > average):
                if(self.callback != self.cb_signalOverAverage):
                   self.stabilityCounter = 0
@@ -44,12 +50,33 @@ class MovingAverage:
    def cb_signalOverAverage(self, value, time):
       self.stabilityCounter += int(1)
       if(self.stabilityCounter > self.THRESHOLD):
-         sendBuyOrder(value, time)
+         #sendBuyOrder(value, time)
+         self.needToBuy = True
+         self.lastValue = {
+                              "value": value,
+                              "time": time
+                           }
    
    def cb_signalUnderAverage(self, value, time):
       self.stabilityCounter += int(1)
       if(self.stabilityCounter > self.THRESHOLD):
-         sendSellOrder(value, time)
+         #sendSellOrder(value, time)
+         self.needToSell = True
+         self.lastValue = {
+                              "value": value,
+                              "time": time
+                           }
+         
+   def publicNewMACDEntry(self, data):
+      message = Message()
+      message.header.type = NEW_MACD_COMPUTED
+   
+      dictionary = {
+         "value": data,
+      }
+      
+      message.payload = dictionary
+      self.broker.dispatch(message)
 
 
 def sendBuyOrder(value, dataTime):
@@ -72,16 +99,7 @@ def sendOrder(orderType, data, time):
    message.payload = dictionary
    broker.dispatch(message)
 
-def publicNewMACDEntry(data):
-   message = Message()
-   message.header.type = NEW_MACD_COMPUTED
-   
-   dictionary = {
-      "value": data,
-   }
-   
-   message.payload = dictionary
-   broker.dispatch(message)
+
 
 '''
 il messaggio è di questo tipo
@@ -98,7 +116,7 @@ payload : {
 '''
 
    
-movingAverage = MovingAverage()
+#movingAverage = MovingAverage()
 
 
 def Average(lst):
