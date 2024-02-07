@@ -4,7 +4,7 @@
 file con tutti i tipi di messaggi e pacchetti disponibili
 '''
 
-# valori del camo "sender" e "to"
+# valori del campo "sender" e "to"
 SENDER_UNDEFINED = "undefined"
 SENDER_DATA = "data"
 SENDER_ALGORITHM = "algorithm"
@@ -18,6 +18,7 @@ SIGNAL_SELL = "sell"
 
 NEW_DATA_ARRIVED = "new data arrived"
 ORDER_HAS_BEEN_CLOSED = "order has been closed"
+NEW_MOVING_AVERAGE_COMPUTED = "new moving average computed"
 NEW_MACD_COMPUTED = "new macd computed"
 
 MARKET_IS_OPEN = "market is open"

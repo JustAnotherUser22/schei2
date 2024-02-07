@@ -7,58 +7,28 @@ from manager import *
 from history import *
 from plotter import *
 import matplotlib.pyplot as plt
+import multiprocessing
+import datetime
 
 
-
-class Test:
+def mainWithProcess(name):
    
-   def __init__(self):
-      self.localValue = 0
-      self.broker = 0
+   start = datetime.datetime.now()
+   print("{0} start at {1}".format(name, start))
 
-   def publish(self, value):
-      message = Message()
-      message.header.sender = SENDER_DATA
-      message.header.type = NEW_DATA_ARRIVED
-      message.value = value
-      self.broker.dispatch(message)
-
-   def messageHandler(self, message):
-      self.localValue = message.value
-
-def miniTest():
-   localBroker = Broker(WITH_PROCESS)
-   test = Test()
+   broker = Broker(BLOCKING)
+   dataReader = DataReader(broker)
+   algorithm = Algorithm(broker)
+   manager = Manager(broker)
+   history = History(broker)
    
-   test.broker = localBroker
+   broker.subscribers.append(dataReader)
+   broker.subscribers.append(algorithm)
+   broker.subscribers.append(manager)
+   broker.subscribers.append(history)
    
-   localBroker.subscribers.append(test)
-   
-   test.publish(666)
-
-   print(test.localValue)
-
-
-def mainWithProcess():
-   
-   localBroker = Broker(WITH_PROCESS)
-   localData = DataReader()
-   localManager = Manager()
-   localHistory = History()
-   localAlgorithm = Algorithm()
-
-   localData.broker = localBroker
-   localManager.broker = localBroker
-   localHistory.broker = localBroker
-   localAlgorithm.broker = localBroker
-
-   localBroker.subscribers.append(localData)
-   localBroker.subscribers.append(localManager)
-   localBroker.subscribers.append(localHistory)
-   localBroker.subscribers.append(localAlgorithm)
-
-   while(localData.dataEnded == False):
-      localData.manager()
+   while(dataReader.dataEnded == False):
+      dataReader.manager()
       algorithm.manager()
       manager.manager()
       history.manager()
@@ -66,8 +36,27 @@ def mainWithProcess():
    #history.printAll()
    history.printFinalGain()
 
+   delta = datetime.datetime.now() - start
+   print("{0} end in {1}".format(name, delta))
+
+
+
+
+def main():
+   numberOfCores = 3#multiprocessing.cpu_count() - int(3)
+
+   processList = []
+   for i in range(numberOfCores):
+      name = 'p' + str(i)
+      p = multiprocessing.Process(target = mainWithProcess, args = (name, ))
+      processList.append(p)
+      processList[i].start()
+
+   for i in range(numberOfCores):
+      processList[i].join()
+
 
 
 if __name__ == "__main__":
-   #miniTest()
-   mainWithProcess()
+   main()
+   #mainWithProcess('aaa')

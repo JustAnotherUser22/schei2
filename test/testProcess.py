@@ -43,11 +43,11 @@ def processTest():
    print("end")
 
 def main():
-   #functionThatComputeSomething("from main", INITIAL_COUNTER_VALUE)
-   functionToRunInProcess("from main")
+   functionThatComputeSomething("aaa", INITIAL_COUNTER_VALUE)
+   #functionToRunInProcess("from main")
 
-   #processTestWithRealFunction()
-   processTest()
+   processTestWithRealFunction()
+   #processTest()
 
 if __name__ == "__main__":
    main()

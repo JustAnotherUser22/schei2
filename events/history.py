@@ -78,6 +78,10 @@ class History:
       self.line = "{0},{1},{2}".format(numberOfGoodTrades, numberOfBadTrades, wr)
    
 
+   def printOrders(self):
+      for order in self.allOrders:
+         print("{0}: {1} -> {2}".format(order.positionType, order.openedAtTime["tempo assoluto"], order.closedAtTime["tempo assoluto"]))
+
    def manager(self):
       return 0;
 

@@ -70,18 +70,20 @@ class DataReader:
       #dataReader.callback = self.scanData
       self.callback = self.scanData
       self.counter = 0
+      f.close()
 
       #print("finito")
       #print("caricati {0} dati".format(len(lines)))
       
    def scanData(self):
-      if(self.counter < 500):
-      #if(self.counter < len(self.lines)):
+      length = 500 #len(self.lines) #500
+      
+      if(self.counter < length):
          line = self.lines[self.counter]
          #data = parseLine(line, self.counter)
          #data = parseLineFormAnotherFormat(line, self.counter)
          data = parseLineFormTickFormat(line, self.counter)
-         self. publish(data)
+         self.publish(data)
          self.counter += int(1)
       else:
          self.dataEnded = True

@@ -3,6 +3,7 @@ from broker import *
 from messages import *
 from algorithmsFolder.supportAndResistance import supportAndResistance
 from algorithmsFolder.MovingAverage import MovingAverage
+from algorithmsFolder.myMACD import myMACD
 
 
 class Entry:
@@ -38,11 +39,13 @@ class TwoElementQueue:
 
 class Algorithm:
    def __init__(self, broker):
-      self.localAlgo = MovingAverage(broker)
+      #self.localAlgo = MovingAverage(broker)
+      self.localAlgo = myMACD(broker)
       self.broker = broker
       
    def manager(self):
       #self.localAlgo.manager()
+      
       if(self.localAlgo.needToBuy == True):
          self.sendBuyOrder(self.localAlgo.lastValue)
          self.localAlgo.needToBuy = False
@@ -50,6 +53,9 @@ class Algorithm:
       if(self.localAlgo.needToSell == True):
          self.sendSellOrder(self.localAlgo.lastValue)
          self.localAlgo.needToSell = False
+      
+      
+      
       
    def messageHandler(self, message):
       self.localAlgo.messageHandler(message)

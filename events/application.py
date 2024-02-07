@@ -40,8 +40,11 @@ def performSingleIteration():
    broker.subscribers.append(plotter)
    
    threshold = int(1)
-   numberOfSamples = int(2)
-   delta = float(0.0001)
+   numberOfSamples = int(20)
+   delta = float(0.0002)
+   #threshold = int(1000)
+   #numberOfSamples = int(12000)
+   #delta = float(0.003)
 
    publishResetMessage()
 
@@ -57,16 +60,24 @@ def performSingleIteration():
 
    #history.printAll()
    history.printFinalGain()
+   history.printOrders()
    
-   #average = [None] * algorithm.localAlgo.NUMBER_OF_SAMPLES
-   #average.extend(plotter.macdData)
+   '''
+   average = [None] * algorithm.localAlgo.NUMBER_OF_SAMPLES
+   average.extend(plotter.movingAverageData)
    plt.plot(plotter.allData)
-   #plt.plot(average)
+   #plt.plot(plotter.movingAverageData, 'r')
+   plt.plot(average, 'r')
    for open in plotter.openPositions:
       plt.plot(open.x, open.y, 'bo')
    for close in plotter.closePositions:
       plt.plot(close.x, close.y, 'ro')
    plt.show()
+   '''
+   #plt.plot(plotter.allData)
+   #plt.plot(plotter.macdData.histogram, 'b')
+   #plt.plot(plotter.macdData.signal, 'r')
+   #plt.show()
 
    print("end")
 
@@ -118,7 +129,7 @@ def performMultipleIteration():
          
 
    average = [None] * algorithm.localAlgo.NUMBER_OF_SAMPLES
-   average.extend(plotter.macdData)
+   average.extend(plotter.movingAverageData)
    plt.plot(plotter.allData)
    #plt.plot(average)
    #for open in plotter.allOpen:

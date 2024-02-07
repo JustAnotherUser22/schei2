@@ -1,5 +1,5 @@
 
-from broker import *
+#from broker import *
 from messages import *
 
 
@@ -49,27 +49,38 @@ class MovingAverage:
 
    def cb_signalOverAverage(self, value, time):
       self.stabilityCounter += int(1)
+      self.needToBuy = False
+      self.needToSell = False
       if(self.stabilityCounter > self.THRESHOLD):
-         #sendBuyOrder(value, time)
+         self.sendBuyOrder(value, time)
+         '''
          self.needToBuy = True
          self.lastValue = {
                               "value": value,
                               "time": time
                            }
+         '''
+         
    
    def cb_signalUnderAverage(self, value, time):
       self.stabilityCounter += int(1)
+      self.needToBuy = False
+      self.needToSell = False
+      
       if(self.stabilityCounter > self.THRESHOLD):
-         #sendSellOrder(value, time)
+         self.sendSellOrder(value, time)
+         '''
          self.needToSell = True
          self.lastValue = {
                               "value": value,
                               "time": time
                            }
+         '''
+         
          
    def publicNewMACDEntry(self, data):
       message = Message()
-      message.header.type = NEW_MACD_COMPUTED
+      message.header.type = NEW_MOVING_AVERAGE_COMPUTED
    
       dictionary = {
          "value": data,
@@ -79,25 +90,25 @@ class MovingAverage:
       self.broker.dispatch(message)
 
 
-def sendBuyOrder(value, dataTime):
-   sendOrder(SIGNAL_BUY, value, dataTime)
+   def sendBuyOrder(self, value, dataTime):
+      self.sendOrder(SIGNAL_BUY, value, dataTime)
 
-def sendSellOrder(value, dataTime):
-   sendOrder(SIGNAL_SELL, value, dataTime)
- 
-def sendOrder(orderType, data, time):
-   message = Message()
-   message.header.sender = SENDER_ALGORITHM
+   def sendSellOrder(self, value, dataTime):
+      self.sendOrder(SIGNAL_SELL, value, dataTime)
    
-   message.header.type = orderType
-   
-   dictionary = {
-      "value": data,
-      "time": time
-   }
-   
-   message.payload = dictionary
-   broker.dispatch(message)
+   def sendOrder(self, orderType, data, time):
+      message = Message()
+      message.header.sender = SENDER_ALGORITHM
+      
+      message.header.type = orderType
+      
+      dictionary = {
+         "value": data,
+         "time": time
+      }
+      
+      message.payload = dictionary
+      self.broker.dispatch(message)
 
 
 

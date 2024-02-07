@@ -6,15 +6,21 @@ class Point:
       self.x = x
       self.y = y
 
+class MacdData:
+   def __init__(self):
+      self.macd = []
+      self.histogram = []
+      self.signal = []
+      
+
 class Plotter:
    def __init__(self):
       self.allData = []
       self.dataCounter = 0
       self.openPositions = []
       self.closePositions = []
-      self.macdData = []
-      self.macdCounter = 0
-
+      self.movingAverageData = []
+      self.macdData = MacdData()
       
    #def manager(self):
    #   self.callback()
@@ -23,6 +29,7 @@ class Plotter:
       if(message.header.type == NEW_DATA_ARRIVED):
          self.allData.append(message.payload["ultimo"])
          self.dataCounter += int(1)
+
       elif(message.header.type == ORDER_HAS_BEEN_CLOSED):
          openPositionTime = message.payload.openedAtTime["tempo assoluto"]
          openPositionValue = message.payload.openValue
@@ -31,9 +38,15 @@ class Plotter:
 
          self.openPositions.append(Point(openPositionTime, openPositionValue))
          self.closePositions.append(Point(closePositionTime, closePositionValue))
+
+      elif(message.header.type == NEW_MOVING_AVERAGE_COMPUTED):
+         self.movingAverageData.append(message.payload["value"])
+
       elif(message.header.type == NEW_MACD_COMPUTED):
-         self.macdData.append(message.payload["value"])
-         self.macdCounter += int(1)
+         self.macdData.macd.append(message.payload["macd"])
+         self.macdData.histogram.append(message.payload["histogram"])
+         self.macdData.signal.append(message.payload["signal"])
+         
       elif(message.header.type == RESET):
          self.__init__()
          
