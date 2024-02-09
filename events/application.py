@@ -6,6 +6,7 @@ from manager import *
 from history import *
 from plotter import *
 import matplotlib.pyplot as plt
+import datetime
 
 
 '''
@@ -52,15 +53,21 @@ def performSingleIteration():
    algorithm.localAlgo.THRESHOLD = int(threshold)
    manager.PROFIT_OR_STOP_DELTA = float(delta)
 
+   start = datetime.datetime.now()
+   print(start)
+
    while(dataReader.dataEnded == False):
       dataReader.manager()
       algorithm.manager()
       manager.manager()
       history.manager()
 
+   delta = datetime.datetime.now() - start
+   print("end in {0}".format(delta))
+
    #history.printAll()
    history.printFinalGain()
-   history.printOrders()
+   #history.printOrders()
    
    '''
    average = [None] * algorithm.localAlgo.NUMBER_OF_SAMPLES

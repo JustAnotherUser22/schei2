@@ -58,7 +58,8 @@ class Algorithm:
       
       
    def messageHandler(self, message):
-      self.localAlgo.messageHandler(message)
+      if(message.header.to != PLOTTER):
+         self.localAlgo.messageHandler(message)
 
 
    def sendBuyOrder(self, lastData):

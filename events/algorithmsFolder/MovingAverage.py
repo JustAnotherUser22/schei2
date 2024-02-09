@@ -81,6 +81,7 @@ class MovingAverage:
    def publicNewMACDEntry(self, data):
       message = Message()
       message.header.type = NEW_MOVING_AVERAGE_COMPUTED
+      message.header.to = PLOTTER
    
       dictionary = {
          "value": data,

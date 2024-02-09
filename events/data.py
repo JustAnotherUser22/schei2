@@ -46,7 +46,8 @@ class DataReader:
 
    def messageHandler(self, message):
       if(message.header.type == RESET):
-         self.__init__()
+         tmpBroker = self.broker
+         self.__init__(tmpBroker)
 
 
    def OpenFile(self):
@@ -55,6 +56,7 @@ class DataReader:
       
       #filePath = "D:\script\schei2\supAndRes\EURUSD_M1_2022_onlyFebruary.csv"
       filePath = "D:\script\schei2\supAndRes\DAT_ASCII_EURUSD_T_2022_onlyFebruary.csv"
+      filePath = dataFiles.BASE_PATH + "DAT_ASCII_EURUSD_M1_2022_window_100.csv"
       
       #print("sto per caricare i dati")
 
@@ -63,11 +65,10 @@ class DataReader:
       lines.pop(0)   #rimuovi prima riga che è header
       #lines.reverse()
 
-      lines = lines[121290 : 369117]   #da 3 a 7
-
-      #dataReader.lines = lines
+      #origianel
+      #lines = lines[121290 : 369117]   #da 3 a 7
+      
       self.lines = lines
-      #dataReader.callback = self.scanData
       self.callback = self.scanData
       self.counter = 0
       f.close()
@@ -76,13 +77,14 @@ class DataReader:
       #print("caricati {0} dati".format(len(lines)))
       
    def scanData(self):
-      length = 500 #len(self.lines) #500
+      length = len(self.lines) #500
       
       if(self.counter < length):
          line = self.lines[self.counter]
          #data = parseLine(line, self.counter)
          #data = parseLineFormAnotherFormat(line, self.counter)
-         data = parseLineFormTickFormat(line, self.counter)
+         #data = parseLineFormTickFormat(line, self.counter)   #origianle
+         data = unAltroParser(line, self.counter)
          self.publish(data)
          self.counter += int(1)
       else:
@@ -182,6 +184,37 @@ def parseLineFormTickFormat(line, counter):
       "tempo assoluto": int(counter)
    }
 
+   dictionary = {
+      "time": timeDictionary,
+      "ultimo": float(info[2]),      
+   }
+   
+   return dictionary
+
+def unAltroParser(line, counter):
+   info = line.split(",")
+
+   timeStamp = info[0].split(" ")
+
+   
+   timeDictionary = {
+      "year": int(timeStamp[0][0:4]),
+      "month": int(timeStamp[0][4:6]),
+      "day": int(timeStamp[0][6:8]),
+      "hour": int(timeStamp[1][0:2]),
+      "minute": int(timeStamp[1][2:4]),
+      "second": int(timeStamp[1][4:8]),
+      "tick": int(-1),
+      "tempo assoluto": int(counter)
+   }
+   
+   '''
+   timeDictionary = {
+      "data": info[0],
+      "tempo assoluto": int(counter)
+   }
+   '''
+   
    dictionary = {
       "time": timeDictionary,
       "ultimo": float(info[2]),      

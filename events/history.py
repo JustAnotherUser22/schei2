@@ -86,10 +86,12 @@ class History:
       return 0;
 
    def messageHandler(self, message):
-      if(message.header.type == ORDER_HAS_BEEN_CLOSED):
-         self.allOrders.append(message.payload)
-      elif(message.header.type == RESET):
-         self.__init__()
+      if(message.header.to != PLOTTER):
+         if(message.header.type == ORDER_HAS_BEEN_CLOSED):
+            self.allOrders.append(message.payload)
+         elif(message.header.type == RESET):
+            tmpBroker = self.broker
+            self.__init__(tmpBroker)
 
 
 #history = History()

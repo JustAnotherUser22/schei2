@@ -21,6 +21,7 @@ class Plotter:
       self.closePositions = []
       self.movingAverageData = []
       self.macdData = MacdData()
+      self.data = []
       
    #def manager(self):
    #   self.callback()
@@ -46,6 +47,7 @@ class Plotter:
          self.macdData.macd.append(message.payload["macd"])
          self.macdData.histogram.append(message.payload["histogram"])
          self.macdData.signal.append(message.payload["signal"])
+         
          
       elif(message.header.type == RESET):
          self.__init__()

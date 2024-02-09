@@ -10,6 +10,7 @@ SENDER_DATA = "data"
 SENDER_ALGORITHM = "algorithm"
 SENDER_MANAGER = "manager"
 SENDER_APPLICATION = "application"
+PLOTTER = "plotter"
 
 #valori del campo "type"
 TYPE_UNDEFINED = "undefined"
