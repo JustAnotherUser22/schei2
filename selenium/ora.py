@@ -8,7 +8,7 @@ import time
 
 def main():
    dizionarioPagine = Pagine()   
-   driver = webdriver.Chrome()
+   driver = webdriver.Edge()
    lastText = ''
    lastText2 = ''
 

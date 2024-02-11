@@ -1,0 +1,32 @@
+import selenium
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.wait import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+from dizionarioPagine import *
+import time
+
+def main():
+   dizionarioPagine = Pagine()   
+   driver = webdriver.Chrome()
+   lastText = ''
+   lastText2 = ''
+
+   driver.get("https://www.etoro.com/it/")
+
+   #wait = WebDriverWait(driver, 10)
+   #element = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "login")))
+
+   #loginButton = driver.find_element(By.CLASS_NAME, "login")
+   #loginButton.click()
+
+
+   time.sleep(100)
+
+      
+   
+
+if __name__ == "__main__":
+   main()
+   
+   
