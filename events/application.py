@@ -17,14 +17,6 @@ PATH_LOG = "D:/script/events/log_ma_2022_feb_3to7.txt"
 PATH_LAST_PARAMETERS = "D:/script/events/last_parameters.txt"
 
 
-def dispatchFunction(message):
-   #dataReader.messageHandler(message)
-   #algorithm.messageHandler(message)
-   #manager.messageHandler(message)
-   #history.messageHandler(message)
-   #plotter.messageHandler(message)
-   pass
-
 def performSingleIteration():
 
    broker = Broker(BLOCKING)
@@ -200,8 +192,6 @@ def performMultipleIterationWithoutMultipleLoops():
    print("end")
 
 def main():
-   
-   broker_setDispatchFunction(dispatchFunction)
    performSingleIteration()
    
 

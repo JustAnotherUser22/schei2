@@ -56,7 +56,7 @@ class DataReader:
       
       #filePath = "D:\script\schei2\supAndRes\EURUSD_M1_2022_onlyFebruary.csv"
       filePath = "D:\script\schei2\supAndRes\DAT_ASCII_EURUSD_T_2022_onlyFebruary.csv"
-      filePath = dataFiles.BASE_PATH + "DAT_ASCII_EURUSD_M1_2022_window_100.csv"
+      #filePath = dataFiles.BASE_PATH + "DAT_ASCII_EURUSD_M1_2022_window_100.csv"
       
       #print("sto per caricare i dati")
 
@@ -67,6 +67,7 @@ class DataReader:
 
       #origianel
       #lines = lines[121290 : 369117]   #da 3 a 7
+      lines = lines[0 : 119401]
       
       self.lines = lines
       self.callback = self.scanData

@@ -13,9 +13,9 @@ class myMACD:
       #self.fast = 12
       #self.signal = 9
       #self.slow = 26
-      self.fast = 50
+      self.fast = 10000#50
       self.signal = 22
-      self.slow = 110
+      self.slow = 20000#110
 
       #external data
       self.needToBuy = False

@@ -171,7 +171,7 @@ def publishResetMessage(broker):
 
 
 def main():
-   numberOfCores = multiprocessing.cpu_count() - int(3)
+   numberOfCores = 1#multiprocessing.cpu_count() - int(4)
 
    mutex = {
       "mutexLoadParameters": multiprocessing.Lock(),

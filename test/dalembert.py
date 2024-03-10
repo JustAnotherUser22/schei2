@@ -55,10 +55,10 @@ def bernulliDistribution(k, n, p):
    return binomialCoefficient(k, n) * (p**k) * (pn**(n-k))
 
 if __name__ == "__main__":
-   #main()
+   main()
    
    p = 18/37
-   n = 1.9*bernulliDistribution(2, 2, p) + 0.1 *bernulliDistribution(1, 2, p)- 2z.1*bernulliDistribution(0,2,p)
+   n = 1.9*bernulliDistribution(2, 2, p) + 0.1 *bernulliDistribution(1, 2, p) - 2.1*bernulliDistribution(0,2,p)
    print(n)
    
    

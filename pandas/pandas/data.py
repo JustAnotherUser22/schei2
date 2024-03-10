@@ -357,15 +357,16 @@ def addFeatureToDatabase(data):
    #data, featuresName = addFeatureToDatabase(data)
    
    data, f1 = addOnlyEmaToDatabase(data)
-   #data, f2 = addOnlyRsiToDatabase(data)
-   #data, f3 = addOnlySmaToDatabase(data)
-   #data, f4 = addOnlyAwesomeOscillatorToDatabase(data)
+   data, f2 = addOnlyRsiToDatabase(data)
+   data, f3 = addOnlySmaToDatabase(data)
+   data, f4 = addOnlyAwesomeOscillatorToDatabase(data)
    data = data.dropna()
    print(data)
    print("data completo")
    featuresName = f1
-   #featuresName.extend(f2)
-   #featuresName.extend(f3)
+   featuresName.extend(f2)
+   featuresName.extend(f3)
+   featuresName.extend(f4)
 
    return data, featuresName
 
@@ -626,8 +627,8 @@ def main():
    y = data[:]["class"]
 
    
-   #X = X.iloc[0:53000]
-   #y = y.iloc[0:53000]
+   X = X.iloc[0:53000]
+   y = y.iloc[0:53000]
    #trainWithCrossValidation(X, y)
    
    (x_train, y_train, x_test, y_test) = splitDataIntoTrainAndTestSetGivenCertainPercentage(X, y, 0.9)

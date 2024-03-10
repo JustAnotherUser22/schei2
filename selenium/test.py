@@ -42,7 +42,7 @@ def insertPassword(driver):
 
 def changeLanguage(driver):
    XPATH_BUTTON_LANGUAGE = '//*[@id="root"]/div[1]/nav/div[3]/ul/li[6]'
-
+                            
    button = driver.find_element(By.XPATH, XPATH_BUTTON_LANGUAGE)
    button.click()
 
@@ -130,9 +130,12 @@ def openPwd():
    driver.get("http://10.139.170.74")
    driver.fullscreen_window()
 
+   changeLanguage(driver)
+
    wait = WebDriverWait(driver, 10)
    #element = wait.until(EC.presence_of_element_located((By.LINK_TEXT, 'Funzioni')))
-   element = wait.until(EC.presence_of_element_located((By.XPATH, "//*[@id='root']/div[1]/nav/div[3]/ul/li[5]/span/span")))
+   
+   element = wait.until(EC.presence_of_element_located((By.XPATH, "//*[@id='root']/div[1]/div/div[2]/ul/li[5]/a/span/span")))
    
    insertPassword(driver)
    changeLanguage(driver)
@@ -147,4 +150,5 @@ def openPwd():
 
 if __name__ == "__main__":
    #openPage()
+   
    openPwd()

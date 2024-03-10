@@ -356,5 +356,26 @@ if __name__ == "__main__":
    #plotVariPerCapireMeglioIDati.plotTimeRequiredToGetACertainDifferenceInPosition(dataFolder.dataFiles.BASE_PATH + dataFolder.dataFiles.FILE_2022_1M_WITH_CLASS, 0.001)   
    #plotVariPerCapireMeglioIDati.plotNumberOfSignalsWhenChangingParameters(BASE_PATH + "DAT_ASCII_EURUSD_M1_2022_gennaio_class.csv")
    #plotVariPerCapireMeglioIDati.plotDeltaWithNextData(5, dataFolder.dataFiles.FILE_FULL_PATH)
-   plotVariPerCapireMeglioIDati.plotNumberOfConsecutiveSecquences(dataFolder.dataFiles.BASE_PATH + dataFolder.dataFiles.FILE_2022_1M_WITH_CLASS, 1)   
+   #plotVariPerCapireMeglioIDati.plotNumberOfConsecutiveSecquences(dataFolder.dataFiles.BASE_PATH + dataFolder.dataFiles.FILE_2022_1M_WITH_CLASS, 1)   
+
+
+   #test one shot
+   filePath = "D:\script\schei2\supAndRes\DAT_ASCII_EURUSD_T_2022_onlyFebruary.csv"
+   f = pd.read_csv(filePath)
+   close = f.iloc[:,1]
+   close = close[0 : 119401]  #secondo giorno
+   orders, status = function(close, 10000, 20000, 22, 10)
+   plt.plot(close)
+   #plt.show()
+
+   for order in orders:
+      x = order.openAt
+      y = order.openPrice
+      plt.plot(x, y, 'o', color = 'red')
+      x = order.closeAt
+      y = order.closePrice
+      plt.plot(x, y, 'o', color = 'green')
+
+
+   plt.show()
  

@@ -15,7 +15,7 @@ def main():
    model = train(data)
    #saveOrPlotTree(data, model)
    
-   #plotboundaries(data)
+   plotboundaries(data)
 
 
 
