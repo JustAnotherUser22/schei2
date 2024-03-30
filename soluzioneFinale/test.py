@@ -75,21 +75,26 @@ def functionToBeCalledInProcess(name, mutex):
 
    while(True):
       mutex["mutexLoadParameters"].acquire()
-      filePath = "D:\script\schei2\supAndRes\DAT_ASCII_EURUSD_T_2022_onlyFebruary.csv"
+      #filePath = "D:\script\schei2\supAndRes\DAT_ASCII_EURUSD_T_2022_onlyFebruary.csv"
+      filePath = "D:\script\schei2\EURUSD\dataFolder\DAT_ASCII_EURUSD_M1_2022_formatted.csv"
       f = pd.read_csv(filePath)
       #close = f.iloc[:,1]
-
+      
       localConfig = configuration.Configuration()
       
+      #la veloce deve essere su meno campioni della lenta (penso...)
       localConfig.fastWindow = int(random.randrange(10, 50000, 10))
-      localConfig.slowWindow = int(random.randrange(10, 100000, 10))
+      localConfig.slowWindow = int(random.randrange(localConfig.fastWindow, 100000, 10))
       localConfig.takeProfit = int(random.randrange(1, 100, 1))
 
-      localConfig.stopLoss = int(random.randrange(1, int(localConfig.takeProfit * 1.2) + 1, 1) / 1000)
+      #localConfig.stopLoss = float(random.randrange(1, int(localConfig.takeProfit * 1.2) + 1, 1) / 10000)
+      localConfig.stopLoss = float(random.randrange(1, 100, 1) / 10000)
 
-      localConfig.takeProfit = int(localConfig.takeProfit / 1000)
+      localConfig.takeProfit = float(localConfig.takeProfit / 10000)
       
-      localConfig.stopBy = configuration.FIXED_LIMTIS
+      #localConfig.stopBy = configuration.FIXED_LIMTIS
+      localConfig.stopBy = configuration.TRAILING_TAKE_PROFIT
+
       mutex["mutexLoadParameters"].release()
       
       doAllTheWork = Manager(f, localConfig)
@@ -103,8 +108,15 @@ def functionToBeCalledInProcess(name, mutex):
             tot += o.openValue - o.closeValue   
       tot = round(tot, 6)
 
-      if(tot > 0):
-         print("{0},{1},{2},{3},{4},{5}".format(tot, localConfig.fastWindow, localConfig.slowWindow, localConfig.takeProfit, localConfig.stopLoss, len(doAllTheWork.orders) ))
+      #if(tot > 0):
+      #   print("{0},{1},{2},{3},{4},{5}".format(tot, localConfig.fastWindow, localConfig.slowWindow, localConfig.takeProfit, localConfig.stopLoss, len(doAllTheWork.orders) ))
+      mutex["mutexWriteResults"].acquire()
+      line = "{0},{1},{2},{3},{4},{5}".format(tot, localConfig.fastWindow, localConfig.slowWindow, localConfig.takeProfit, localConfig.stopLoss, len(doAllTheWork.orders))
+      print(line)
+      f = open("schei2/soluzioneFinale/results.txt", "a")
+      f.write(line + '\n')
+      f.close()
+      mutex["mutexWriteResults"].release()
 
 
 def withProcesses():
@@ -126,9 +138,91 @@ def withProcesses():
    for i in range(numberOfCores):
       processList[i].join()
 
+
+def showResultWithLessDimensions():
+   from sklearn.decomposition import PCA
+
+   X = pd.read_csv("schei2/soluzioneFinale/results.txt")
+   print(X)
+
+   from sklearn.preprocessing import StandardScaler
+   X_std = StandardScaler().fit_transform(X.drop(columns=["tot"]))
+   pca = PCA(n_components = 2) # vogliamo proiettare due dimensioni in modo da poterle visualizzare!
+   
+   # Addestriamo il modello PCA sui dati standardizzati
+   vecs = pca.fit_transform(X_std)
+   print(vecs)
+   print(pca.singular_values_)
+   print(pca.explained_variance_ratio_)
+   
+   '''   
+   reduced_df = pd.DataFrame(data=vecs, columns=['Principal Component 1'])
+   final_df = pd.concat([reduced_df, X[['tot']]], axis=1)
+   plt.scatter(final_df["Principal Component 1"], final_df['tot'])
+   plt.show()
+   '''   
+   
+   reduced_df = pd.DataFrame(data=vecs, columns=['Principal Component 1', "Principal Component 2"])
+   final_df = pd.concat([reduced_df, X[['tot']]], axis=1)
+   fig = plt.figure()
+   ax = plt.axes(projection='3d')
+   
+   # Data for a three-dimensional line
+   zline = X['tot']
+   xline = (reduced_df['Principal Component 1'])
+   yline = (reduced_df['Principal Component 2'])
+   #ax.plot3D(xline, yline, zline, 'gray')
+   ax.scatter3D(xline, yline, zline, 'gray')
+   plt.show()
+   
+   '''
+   reduced_df = pd.DataFrame(data=vecs, columns=['Principal Component 1', "Principal Component 2", "pc3"])
+   final_df = pd.concat([reduced_df, X[['tot']]], axis=1)
+   fig = plt.figure()
+   ax = plt.axes(projection='3d')
+
+   final_df = final_df.where(final_df['tot'] > 0.08)
+   
+   # Data for a three-dimensional line
+   c = final_df['tot']
+   x = (final_df['Principal Component 1'])
+   y = (final_df['Principal Component 2'])
+   z = final_df['pc3']
+   ax.set_xlabel('p1')
+   ax.set_ylabel('p2')
+   ax.set_zlabel('p3')
+   img = ax.scatter(x, y, z, c=c, cmap=plt.hot())
+   fig.colorbar(img)
+   plt.show()
+   '''
+   
+   print(pca.singular_values_)
+   print(pca.components_)
+
+   
+
+def printUnaRoba():
+   from ta.trend import EMAIndicator
+
+   filePath = "D:\script\schei2\EURUSD\dataFolder\DAT_ASCII_EURUSD_M1_2022_formatted.csv"
+   f = pd.read_csv(filePath)
+   close = f.iloc[:, 1]
+
+   ema = EMAIndicator(close = close, window = 20000)
+
+   plt.plot(close)
+   plt.plot(ema.ema_indicator())
+   plt.show()
+
+
+
+
 def main():
    #greatestFunctionEver()
    withProcesses()
+   #showResultWithLessDimensions()
+   #printUnaRoba()
+
 
 from datetime import date
 

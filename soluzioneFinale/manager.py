@@ -60,12 +60,27 @@ class Manager():
             self.orders.append(deepcopy(self.order))
             self.order.reset()
 
+         now = self.dataframe.iloc[i, 0]
+  
+         data = now.split(' ')
+         hour = int(data[1][0:2])
+         minute = data[1][2:4]         
+
+         if(hour == 16 and minute == 59):
+            self.currentState = self.cb_idle
+            self.order.closeValue = self.close[i]
+            self.order.closedAtTime = i
+            self.orders.append(deepcopy(self.order))
+            self.order.reset()
+
+         
+
    
    def updateMarketState(self):
       i = self.currentIndex
       now = self.dataframe.iloc[i, 0]
 
-      isClose = False
+      isOpen = True
 
       data = now.split(' ')
       hour = int(data[1][0:2])
@@ -77,12 +92,12 @@ class Manager():
       day = int(data[0][6:8])
 
       if(date(year = year, month = month, day = day).weekday() >= 5):
-         isClose = True
+         isOpen = False
 
       if(hour > 17 and hour < 6):
-         isClose = True
+         isOpen = False
 
-      return isClose
+      self.marketIsOpen = isOpen
       
 
    

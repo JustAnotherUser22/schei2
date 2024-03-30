@@ -41,6 +41,21 @@ class Bet:
    def printBet(self):
       print("{0} {1} {2} {3} {4}".format(self.squadra1, self.squadra2, self.singola.uno, self.singola.X, self.singola.due))
 
+'''
+data = {'origin': ['b', 'b', 's'],
+            'team1': ['mi', 'mi', 'mi'],
+            'team2': ['ju', 'ju', 'ju'],
+            '1': [3, 3, 3],
+            'X': [3, 3, 3],
+            '2': [3, 3, 3],
+            '1X': [3, 3, 3],
+            'X2': [3, 3, 3],
+            '12': [3, 3, 3],
+            'gol si': [3, 3, 3],
+            'gol no': [3, 3, 3]}
+
+dataFrame = pd.DataFrame(data)
+'''
 
 dataFrame = pd.DataFrame({'origin': 0,
                            'team1': 0,
@@ -53,7 +68,6 @@ dataFrame = pd.DataFrame({'origin': 0,
                            '12': 0,
                            'gol si': 0,
                            'gol no': 0}, index = [0])
-
 
 
 def appendDataToDataFrame(bet):
@@ -72,8 +86,8 @@ def appendDataToDataFrame(bet):
                                              bet.doppia.unoX,
                                              bet.doppia.dueX,
                                              bet.doppia.unoDue,
-                                             0,
-                                             0]  
+                                             bet.golsi,
+                                             bet.golno]  
    else:
       if((dataFrame.loc[row_index[0], '1'] != bet.singola.uno) |
          (dataFrame.loc[row_index[0], '2'] != bet.singola.due) |
@@ -128,7 +142,8 @@ def getBwin(driver):
             bet.doppia.unoX = data[i+3]
             bet.doppia.dueX = data[i+4]
             bet.doppia.unoDue = data[i+5]
-            
+            bet.golsi = 0
+            bet.golno = 0
             #bet.printBet()
             bet.origin = 'bwin'
             
@@ -159,6 +174,9 @@ def getSisal(driver):
          bet.doppia.unoX = data[7]
          bet.doppia.dueX = data[8]
          bet.doppia.unoDue = data[9]
+         bet.golsi = 0
+         bet.golno = 0
+         
          #bet.printBet()
          bet.origin = 'sisal'
          allBet.append(copy.deepcopy(bet))
@@ -179,7 +197,26 @@ def checkOpportunity():
                                 (dfcopy['team2'] == squadra2)].tolist()
       
       if(len(rows_index) > 0):
-         pass
+         for i in range(len(rows_index) - 1):
+            first = dfcopy.iloc[rows_index[i]]
+            second = dfcopy.iloc[rows_index[i+1]]
+            found = False
+
+            if(first['origin'] != second['origin']):
+               if(first['1'] > 2 and second['X2'] > 2):
+                  found = True
+               if(first['2'] > 2 and second['1X'] > 2):
+                  found = True
+               if(first['X'] > 2 and second['12'] > 2):
+                  found = True
+               if(first['gol si'] > 2 and second['gol no'] > 2):
+                  found = True
+               if(first['gol no'] > 2 and second['gol si'] > 2):
+                  found = True   
+
+               if(found == True):
+                  print(first)
+                  print(second)   
       else:
          pass
 
@@ -189,10 +226,12 @@ def checkOpportunity():
          dfcopy = dfcopy.reset_index(drop = True)
    
 
-
+'''
 allPages = ["https://sports.bwin.it/it/sports/calcio-4/scommesse/italia-20",
             "https://www.sisal.it/scommesse-matchpoint/quote/calcio/serie-a",
          ]
+'''
+allPages = ["https://sports-bwin-it.translate.goog/it/sports/calcio-4/scommesse/italia-20?_x_tr_sl=auto&_x_tr_tl=en&_x_tr_hl=en-US&_x_tr_pto=wapp&_x_tr_hist=true"]
 
 
 
@@ -207,7 +246,7 @@ def main():
    driver.execute_script("document.body.style.zoom='75%'")
 
    dizionarioPagine.add('primo', driver.current_window_handle)
-
+   '''
    driver.execute_script("window.open('about:blank', 'secondtab');")
    driver.switch_to.window("secondtab")
 
@@ -216,13 +255,13 @@ def main():
    driver.get(allPages[1])
    driver.fullscreen_window()
    driver.execute_script("document.body.style.zoom='75%'")
-   
+   '''
    wait = WebDriverWait(driver, 10)
    #element = wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "sort-toggle-button left-btn active")))
    
    #time.sleep(10)
    
-   '''
+   
    driver.switch_to.window(dizionarioPagine.getUrlWithGivenDescription("primo"))
    driver.set_window_size(4000,2000)      #?????????
    driver.fullscreen_window()
@@ -234,7 +273,7 @@ def main():
       os.system('cls')
       getBwin(driver)
       print(dataFrame)
-   '''
+   
 
    '''
    driver.switch_to.window(dizionarioPagine.getUrlWithGivenDescription("secondo"))
@@ -276,7 +315,11 @@ def main():
       
    
 
+def testFunction():
+   checkOpportunity()
+
 if __name__ == "__main__":
    main()
+   #testFunction()
    
    

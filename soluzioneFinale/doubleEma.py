@@ -34,7 +34,7 @@ class Doubleema():
    def generateEntrySignal(self):
       i = self.currentIndex
       valueToReturn = False
-      
+      '''
       if(self.currentFast == 0 and
          self.currentSlow == 0):
          pass         
@@ -51,16 +51,16 @@ class Doubleema():
             self.openAt = self.close[i]
       '''
       if(self.signals['fast'][i] > self.signals['slow'][i] and
-         self.signals['fast'][i] - self.signals['slow'][i] > 0.0001):
+         self.signals['fast'][i] - self.signals['slow'][i] > 0.0003):
          valueToReturn =  True
          self.signalGenerated = order.BUY
          self.openAt = self.close[i]
       if(self.signals['fast'][i] < self.signals['slow'][i] and
-         self.signals['fast'][i] - self.signals['slow'][i] < -0.0001):
+         self.signals['fast'][i] - self.signals['slow'][i] < -0.0003):
          valueToReturn = True
          self.signalGenerated = order.SELL
          self.openAt = self.close[i]
-      '''
+      
 
       self.updateValues(self.signals['fast'][i], self.signals['slow'][i])
       return valueToReturn
@@ -75,10 +75,31 @@ class Doubleema():
          valueToReturn = self.checkIfCurrentValueIsOverStopLossOrTakeProfit()
       elif(self.config.stopBy == configuration.SIGNALS_FROM_ALGO):
          valueToReturn = self.checkIfAlgoProvidExitSignals()
+      elif(self.config.stopBy == configuration.TRAILING_TAKE_PROFIT):
+         valueToReturn = self.robaConTrailTakeProfit()
 
       self.updateValues(self.signals['fast'][i], self.signals['slow'][i])
       return valueToReturn
    
+
+   def robaConTrailTakeProfit(self):
+      i = self.currentIndex
+      valueToReturn = False
+
+      if(self.signalGenerated == order.BUY):
+         if(self.close[i] > self.openAt + 0.0003):
+            self.openAt = self.close[i]
+         if(self.close[i] < self.openAt - self.config.stopLoss):
+            valueToReturn =  True
+
+      if(self.signalGenerated == order.SELL):
+         if(self.close[i] < self.openAt - 0.0003):
+            self.openAt = self.close[i]
+         if(self.close[i] > self.openAt + self.config.stopLoss):
+            valueToReturn =  True
+      
+      return valueToReturn
+
 
    def checkIfCurrentValueIsOverStopLossOrTakeProfit(self):
       i = self.currentIndex
