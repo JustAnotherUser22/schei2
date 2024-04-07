@@ -139,6 +139,105 @@ def withProcesses():
       processList[i].join()
 
 
+
+def printPCAInOneDimensions():
+   from sklearn.decomposition import PCA
+
+   X = pd.read_csv("soluzioneFinale/results.txt")
+   print(X)
+
+   from sklearn.preprocessing import StandardScaler
+   X_std = StandardScaler().fit_transform(X.drop(columns=["tot"]))
+   pca = PCA(n_components = 1) # vogliamo proiettare due dimensioni in modo da poterle visualizzare!
+   
+   # Addestriamo il modello PCA sui dati standardizzati
+   vecs = pca.fit_transform(X_std)
+   print(vecs)
+   print(pca.singular_values_)
+   print(pca.explained_variance_ratio_)
+   
+      
+   reduced_df = pd.DataFrame(data=vecs, columns=['Principal Component 1'])
+   final_df = pd.concat([reduced_df, X[['tot']]], axis=1)
+   plt.scatter(final_df["Principal Component 1"], final_df['tot'])
+   plt.show()
+
+
+def printPCAInTwoDimensions():
+   from sklearn.decomposition import PCA
+
+   X = pd.read_csv("soluzioneFinale/results.txt")
+   print(X)
+
+   from sklearn.preprocessing import StandardScaler
+   X_std = StandardScaler().fit_transform(X.drop(columns=["tot"]))
+   pca = PCA(n_components = 2) # vogliamo proiettare due dimensioni in modo da poterle visualizzare!
+   
+   # Addestriamo il modello PCA sui dati standardizzati
+   vecs = pca.fit_transform(X_std)
+   print(vecs)
+   print(pca.singular_values_)
+   print(pca.explained_variance_ratio_)
+   
+   reduced_df = pd.DataFrame(data=vecs, columns=['Principal Component 1', "Principal Component 2"])
+   final_df = pd.concat([reduced_df, X[['tot']]], axis=1)
+   fig = plt.figure()
+   ax = plt.axes(projection='3d')
+   
+   # Data for a three-dimensional line
+   zline = X['tot']
+   xline = (X['fast'])
+   yline = (X['slow'])
+   #xline = (reduced_df['Principal Component 1'])
+   #yline = (reduced_df['Principal Component 2'])
+   #ax.plot3D(xline, yline, zline, 'gray')
+   ax.scatter3D(xline, yline, zline, 'gray')
+   plt.show()
+   
+   print(pca.singular_values_)
+   print(pca.components_)
+
+
+def printPCAInThreeDimensions():
+   from sklearn.decomposition import PCA
+
+   X = pd.read_csv("soluzioneFinale/results.txt")
+   print(X)
+
+   from sklearn.preprocessing import StandardScaler
+   X_std = StandardScaler().fit_transform(X.drop(columns=["tot"]))
+   pca = PCA(n_components = 3) # vogliamo proiettare due dimensioni in modo da poterle visualizzare!
+   
+   # Addestriamo il modello PCA sui dati standardizzati
+   vecs = pca.fit_transform(X_std)
+   print(vecs)
+   print(pca.singular_values_)
+   print(pca.explained_variance_ratio_)
+   
+   reduced_df = pd.DataFrame(data=vecs, columns=['Principal Component 1', "Principal Component 2", "pc3"])
+   final_df = pd.concat([reduced_df, X[['tot']]], axis=1)
+   fig = plt.figure()
+   ax = plt.axes(projection='3d')
+
+   final_df = final_df.where(final_df['tot'] > 0.08)
+   
+   # Data for a three-dimensional line
+   c = final_df['tot']
+   x = (final_df['Principal Component 1'])
+   y = (final_df['Principal Component 2'])
+   z = final_df['pc3']
+   ax.set_xlabel('p1')
+   ax.set_ylabel('p2')
+   ax.set_zlabel('p3')
+   img = ax.scatter(x, y, z, c=c, cmap=plt.hot())
+   fig.colorbar(img)
+   plt.show()
+   
+   print(pca.singular_values_)
+   print(pca.components_)
+
+
+
 def showResultWithLessDimensions():
    from sklearn.decomposition import PCA
 
@@ -203,15 +302,19 @@ def showResultWithLessDimensions():
 
 def printUnaRoba():
    from ta.trend import EMAIndicator
+   from ta.momentum import RSIIndicator
 
-   filePath = "D:\script\schei2\EURUSD\dataFolder\DAT_ASCII_EURUSD_M1_2022_formatted.csv"
+   #filePath = "D:\script\schei2\EURUSD\dataFolder\DAT_ASCII_EURUSD_M1_2022_formatted.csv"
+   filePath = "C:/Users/Marco/Documents/python/schei2/EURUSD/dataFolder/DAT_ASCII_EURUSD_M1_2022_formatted.csv"
    f = pd.read_csv(filePath)
    close = f.iloc[:, 1]
 
    ema = EMAIndicator(close = close, window = 20000)
+   rsi = RSIIndicator(close = close, window = 20)
 
-   plt.plot(close)
-   plt.plot(ema.ema_indicator())
+   #plt.plot(close)
+   #plt.plot(ema.ema_indicator())
+   plt.plot(rsi.rsi())
    plt.show()
 
 
@@ -219,9 +322,10 @@ def printUnaRoba():
 
 def main():
    #greatestFunctionEver()
-   withProcesses()
+   #withProcesses()
    #showResultWithLessDimensions()
-   #printUnaRoba()
+   printUnaRoba()
+   #printPCAInTwoDimensions()
 
 
 from datetime import date

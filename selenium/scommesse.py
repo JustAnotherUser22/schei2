@@ -11,97 +11,7 @@ import os
 from selenium.webdriver.support.ui import Select
 from selenium.webdriver.common.action_chains import ActionChains
 import pandas as pd
-
-class Singola:
-   def __init__(self):
-      self.uno = 0
-      self.due = 0
-      self.X = 0
-
-class Doppia:
-   def __init__(self):
-      self.unoDue = 0
-      self.dueX = 0
-      self.unoX = 0
-   
-class Gol:
-   def __init__(self):
-      self.si = 0
-      self.no = 0
-          
-class Bet:
-
-   def __init__(self):
-      self.squadra1 = ''
-      self.squadra2 = ''
-      self.singola = Singola()
-      self.doppia = Doppia()
-      self.gol = Gol()
-
-   def printBet(self):
-      print("{0} {1} {2} {3} {4}".format(self.squadra1, self.squadra2, self.singola.uno, self.singola.X, self.singola.due))
-
-'''
-data = {'origin': ['b', 'b', 's'],
-            'team1': ['mi', 'mi', 'mi'],
-            'team2': ['ju', 'ju', 'ju'],
-            '1': [3, 3, 3],
-            'X': [3, 3, 3],
-            '2': [3, 3, 3],
-            '1X': [3, 3, 3],
-            'X2': [3, 3, 3],
-            '12': [3, 3, 3],
-            'gol si': [3, 3, 3],
-            'gol no': [3, 3, 3]}
-
-dataFrame = pd.DataFrame(data)
-'''
-
-dataFrame = pd.DataFrame({'origin': 0,
-                           'team1': 0,
-                           'team2': 0,
-                           '1': 0,
-                           'X': 0,
-                           '2': 0,
-                           '1X': 0,
-                           'X2': 0,
-                           '12': 0,
-                           'gol si': 0,
-                           'gol no': 0}, index = [0])
-
-
-def appendDataToDataFrame(bet):
-   
-   row_index = dataFrame.index[(dataFrame['origin'] == bet.origin) &
-                              (dataFrame['team1'] == bet.squadra1) &
-                              (dataFrame['team2'] == bet.squadra2)].tolist()
-   
-   if(len(row_index) == 0):
-      dataFrame.loc[len(dataFrame.index)] = [bet.origin, 
-                                             bet.squadra1, 
-                                             bet.squadra2, 
-                                             bet.singola.uno, 
-                                             bet.singola.X, 
-                                             bet.singola.due,
-                                             bet.doppia.unoX,
-                                             bet.doppia.dueX,
-                                             bet.doppia.unoDue,
-                                             bet.golsi,
-                                             bet.golno]  
-   else:
-      if((dataFrame.loc[row_index[0], '1'] != bet.singola.uno) |
-         (dataFrame.loc[row_index[0], '2'] != bet.singola.due) |
-         (dataFrame.loc[row_index[0], 'X'] != bet.singola.X) |
-         (dataFrame.loc[row_index[0], '1X'] != bet.doppia.unoX) |
-         (dataFrame.loc[row_index[0], 'X2'] != bet.doppia.dueX) |
-         (dataFrame.loc[row_index[0], '12'] != bet.doppia.unoDue) ):
-         dataFrame.loc[row_index[0], '1'] = bet.singola.uno
-         dataFrame.loc[row_index[0], '2'] = bet.singola.due
-         dataFrame.loc[row_index[0], 'X'] = bet.singola.X
-         dataFrame.loc[row_index[0], '1X'] = bet.doppia.unoX
-         dataFrame.loc[row_index[0], 'X2'] = bet.doppia.dueX
-         dataFrame.loc[row_index[0], '12'] = bet.doppia.unoDue
-   
+from strutturaDati import *
 
 
 def getBwin(driver):
@@ -186,44 +96,6 @@ def getSisal(driver):
          print("-- ERRORE --")
 
 
-def checkOpportunity():
-   dfcopy = copy.deepcopy(dataFrame)
-
-   while(len(dfcopy) > 0):
-      squadra1 = dfcopy.loc[0, 'team1']
-      squadra2 = dfcopy.loc[0, 'team2']
-
-      rows_index = dfcopy.index[(dfcopy['team1'] == squadra1) &
-                                (dfcopy['team2'] == squadra2)].tolist()
-      
-      if(len(rows_index) > 0):
-         for i in range(len(rows_index) - 1):
-            first = dfcopy.iloc[rows_index[i]]
-            second = dfcopy.iloc[rows_index[i+1]]
-            found = False
-
-            if(first['origin'] != second['origin']):
-               if(first['1'] > 2 and second['X2'] > 2):
-                  found = True
-               if(first['2'] > 2 and second['1X'] > 2):
-                  found = True
-               if(first['X'] > 2 and second['12'] > 2):
-                  found = True
-               if(first['gol si'] > 2 and second['gol no'] > 2):
-                  found = True
-               if(first['gol no'] > 2 and second['gol si'] > 2):
-                  found = True   
-
-               if(found == True):
-                  print(first)
-                  print(second)   
-      else:
-         pass
-
-      dfcopy = dfcopy.drop(rows_index)
-      #print(dfcopy)
-      if(len(dfcopy) > 0):
-         dfcopy = dfcopy.reset_index(drop = True)
    
 
 '''
